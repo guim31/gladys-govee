@@ -53,4 +53,9 @@ export class Store {
     }
     return this.pending;
   }
+
+  /** Resolves once every write requested so far is on disk. */
+  flush() {
+    return this.writing ?? Promise.resolve();
+  }
 }

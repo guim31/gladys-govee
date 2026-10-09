@@ -14,7 +14,7 @@ const app = registerHandlers(gladys);
 
 gladys.handleShutdown((signal) => {
   logger.info(`Received ${signal}, stopping`);
-  app.stop();
+  return app.stop(); // waits for the last state write under /data
 });
 
 logger.info('Starting the Govee integration...');

@@ -120,6 +120,8 @@ export class GoveeHub {
     this.timers = [];
     this.refreshTimers.clear();
     this.lan.stop();
+    // Callers (shutdown, tests) can wait for the last state write.
+    return this.store.flush();
   }
 
   /** Apply a (new) configuration. Returns true when the cloud client changed. */

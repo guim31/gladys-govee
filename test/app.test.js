@@ -28,7 +28,6 @@ const setValue = (gladys, rawId, key, value) =>
   );
 const fakeDevice = (network, fixture) => network.byIp(fixture.ip);
 const sentTo = (network, ip, cmd) => network.sent.filter((s) => s.ip === ip && s.cmd === cmd);
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 test('LAN discovery publishes the lights and their state', async () => {
   const { gladys, app } = await createWorld({ config: lanConfig });
@@ -335,8 +334,8 @@ test('nothing configured, nothing found: the status says what to do', async () =
 
 test('a restart knows the lights before they answer, and keeps the cloud counter', async () => {
   const first = await createWorld({ config: cloudConfig });
-  first.app.stop();
-  await wait(20);
+  // stop() resolves once the last state write is on disk.
+  await first.app.stop();
   const saved = JSON.parse(await readFile(join(first.dataDir, 'govee-state.json'), 'utf8'));
   assert.equal(saved.devices.length, 10);
   assert.ok(saved.cloudUsage.count > 0);
