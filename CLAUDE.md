@@ -31,16 +31,22 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
-src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
-src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
+index.js                          SDK wiring only (src/app.js registers every handler)
+src/app.js                        handlers on the SDK: scan, set value, actions, scenes, widgets
+src/hub.js                        registry of the Govee devices, discovery, polls, LAN/cloud routing
+src/lan/protocol.js               Govee LAN API messages (scan, devStatus, turn, colorwc, ptReal)
+src/lan/client.js                 UDP client: direct answers, or mediated capture of port 4002
+src/lan/addresses.js              "IP addresses or ranges" field parser
+src/cloud/client.js               Govee OpenAPI v2 client, daily quota counter
+src/features.js                   Govee device -> Gladys features, states, commands (keys are permanent)
+src/models.js                     SKU capability table, ported from govee-local-api
+src/presets.js, src/scenes.js     Govee built-in scenes, white/colour presets, scene action
+src/widgets.js                    "light_presets" dashboard widget
+src/config.js, src/store.js       DEFAULT_CONFIG + normalization; /data persistence
 gladys-assistant-integration.json manifest: name, config_schema, actions, image...
 docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
-test/                             node --test; test/helpers/fakeGladys.js stands in for the SDK
+test/                             node --test; helpers/ fake Gladys, simulated LAN, fake cloud
+test/gladys-rules.test.js         conformity with the core table (never loosen it)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -164,6 +170,40 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
 - Les filtres de scène ne font qu'égalité et appartenance : un seuil reste le travail d'un capteur.
 - **Les clés de widgets, de déclencheurs et d'actions sont figées une fois publiées.**
 - `gladys_version` `>=5.1.0` dès qu'il y a widgets, déclencheurs ou actions de scène.
+
+**Découverte réseau médiée (vérifié dans le code du cœur, 5.1.4)**
+
+- `udp-active-broadcast` écoute les réponses sur le **port éphémère** d'où le cœur a émis : un
+  protocole qui répond sur un **port fixe** (Govee : 4002) n'y remonte rien. Et le cœur refuse
+  deux captures simultanées d'une même intégration (409) : impossible de coupler une émission
+  active et une écoute passive.
+- Une capture `udp-broadcast` lie `0.0.0.0:<port>` sur l'hôte : elle reçoit aussi les datagrammes
+  **unicast** adressés à l'hôte. Contournement Govee : le conteneur envoie en unicast pendant que
+  le cœur écoute le port de réponse. Disponible depuis Gladys 4.84.0 ; pas de limite de cadence
+  pour ce type (seul l'actif est limité à 1 / 10 s).
+- Un conteneur en pont : un envoi depuis un socket lié au port P sort avec le port source P
+  (MASQUERADE le garde s'il est libre) ; une réponse qui revient du port interrogé est rendue au
+  conteneur, une réponse d'un autre port ne l'est pas. Ne jamais le supposer : tenter, puis
+  basculer sur la capture.
+- `publishTransports` ignore en silence les appareils pas encore créés : republier le badge dans
+  `onDeviceCreated`, comme les états.
+
+**SDK 0.14.0 publié sur npm (et non `master`)**
+
+- Ni `publishChangedStates`, ni `@gladysassistant/integration-sdk/testing` (`createFakeGladys`),
+  ni `DEVICE_POLL_FREQUENCIES` : le README de `master` les documente, le paquet publié ne les a
+  pas. Dédoublonner les états soi-même, garder un double de test maison.
+- `validateWidgetContent` **ignore les `fields`** d'une action de widget ; le cœur les valide
+  (`validateConfigField`) et jette le bouton si la déclaration est invalide. Les champs d'action de
+  widget exigent Gladys ≥ 5.1.0.
+- `light/temperature` avec l'unité `kelvin` et des bornes en kelvins : le front l'affiche comme
+  une vraie échelle de température (sinon il devine mired ou ratio d'après les bornes).
+
+## CI
+
+- Le `docker build` de la CI tirait `node:24-alpine` depuis Docker Hub en anonyme et tombait en
+  **429 Too Many Requests** sur les runners partagés. Le `Dockerfile` tire la même image officielle
+  depuis le miroir `public.ecr.aws/docker/library/`, sans quota anonyme bloquant.
 
 ## Store
 

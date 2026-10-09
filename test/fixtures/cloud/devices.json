@@ -1,0 +1,240 @@
+{
+  "_comment": "GET /router/api/v1/user/devices, in the format of the Govee OpenAPI documentation. Device ids anonymized. The H6076 is the floor lamp of lan/devices.json, seen by both channels.",
+  "code": 200,
+  "message": "success",
+  "data": [
+    {
+      "sku": "H6076",
+      "device": "1A:2B:3C:4D:5E:6F:70:02",
+      "deviceName": "Living room floor lamp",
+      "type": "devices.types.light",
+      "capabilities": [
+        {
+          "type": "devices.capabilities.on_off",
+          "instance": "powerSwitch",
+          "parameters": {
+            "dataType": "ENUM",
+            "options": [
+              { "name": "on", "value": 1 },
+              { "name": "off", "value": 0 }
+            ]
+          }
+        },
+        {
+          "type": "devices.capabilities.toggle",
+          "instance": "gradientToggle",
+          "parameters": {
+            "dataType": "ENUM",
+            "options": [
+              { "name": "on", "value": 1 },
+              { "name": "off", "value": 0 }
+            ]
+          }
+        },
+        {
+          "type": "devices.capabilities.range",
+          "instance": "brightness",
+          "parameters": {
+            "unit": "unit.percent",
+            "dataType": "INTEGER",
+            "range": { "min": 1, "max": 100, "precision": 1 }
+          }
+        },
+        {
+          "type": "devices.capabilities.segment_color_setting",
+          "instance": "segmentedColorRgb",
+          "parameters": {
+            "dataType": "STRUCT",
+            "fields": [
+              {
+                "fieldName": "segment",
+                "dataType": "Array",
+                "options": [{ "value": 0 }, { "value": 1 }, { "value": 2 }],
+                "required": true
+              },
+              {
+                "fieldName": "rgb",
+                "dataType": "INTEGER",
+                "range": { "min": 0, "max": 16777215, "precision": 1 },
+                "required": true
+              }
+            ]
+          }
+        },
+        {
+          "type": "devices.capabilities.color_setting",
+          "instance": "colorRgb",
+          "parameters": {
+            "dataType": "INTEGER",
+            "range": { "min": 0, "max": 16777215, "precision": 1 }
+          }
+        },
+        {
+          "type": "devices.capabilities.color_setting",
+          "instance": "colorTemperatureK",
+          "parameters": {
+            "dataType": "INTEGER",
+            "range": { "min": 2700, "max": 6500, "precision": 1 }
+          }
+        },
+        {
+          "type": "devices.capabilities.dynamic_scene",
+          "instance": "lightScene",
+          "parameters": { "dataType": "ENUM", "options": [] }
+        }
+      ]
+    },
+    {
+      "sku": "H5080",
+      "device": "1A:2B:3C:4D:5E:6F:70:11",
+      "deviceName": "Coffee maker plug",
+      "type": "devices.types.socket",
+      "capabilities": [
+        {
+          "type": "devices.capabilities.on_off",
+          "instance": "powerSwitch",
+          "parameters": {
+            "dataType": "ENUM",
+            "options": [
+              { "name": "on", "value": 1 },
+              { "name": "off", "value": 0 }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "sku": "H5179",
+      "device": "1A:2B:3C:4D:5E:6F:70:12",
+      "deviceName": "Basement thermometer",
+      "type": "devices.types.thermometer",
+      "capabilities": [
+        {
+          "type": "devices.capabilities.online",
+          "instance": "online",
+          "parameters": { "dataType": "ENUM", "options": [] }
+        },
+        {
+          "type": "devices.capabilities.property",
+          "instance": "sensorTemperature",
+          "parameters": { "dataType": "INTEGER" }
+        },
+        {
+          "type": "devices.capabilities.property",
+          "instance": "sensorHumidity",
+          "parameters": { "dataType": "INTEGER" }
+        }
+      ]
+    },
+    {
+      "sku": "H7141",
+      "device": "1A:2B:3C:4D:5E:6F:70:13",
+      "deviceName": "Bedroom humidifier",
+      "type": "devices.types.humidifier",
+      "capabilities": [
+        {
+          "type": "devices.capabilities.on_off",
+          "instance": "powerSwitch",
+          "parameters": {
+            "dataType": "ENUM",
+            "options": [
+              { "name": "on", "value": 1 },
+              { "name": "off", "value": 0 }
+            ]
+          }
+        },
+        {
+          "type": "devices.capabilities.work_mode",
+          "instance": "workMode",
+          "parameters": {
+            "dataType": "STRUCT",
+            "fields": [
+              {
+                "fieldName": "workMode",
+                "dataType": "ENUM",
+                "options": [
+                  { "name": "Manual", "value": 1 },
+                  { "name": "Custom", "value": 2 },
+                  { "name": "Auto", "value": 3 }
+                ],
+                "required": true
+              }
+            ]
+          }
+        },
+        {
+          "type": "devices.capabilities.range",
+          "instance": "humidity",
+          "parameters": {
+            "unit": "unit.percent",
+            "dataType": "INTEGER",
+            "range": { "min": 40, "max": 80, "precision": 1 }
+          }
+        },
+        {
+          "type": "devices.capabilities.toggle",
+          "instance": "nightlightToggle",
+          "parameters": {
+            "dataType": "ENUM",
+            "options": [
+              { "name": "on", "value": 1 },
+              { "name": "off", "value": 0 }
+            ]
+          }
+        },
+        {
+          "type": "devices.capabilities.color_setting",
+          "instance": "colorRgb",
+          "parameters": {
+            "dataType": "INTEGER",
+            "range": { "min": 0, "max": 16777215, "precision": 1 }
+          }
+        }
+      ]
+    },
+    {
+      "sku": "H6058",
+      "device": "1A:2B:3C:4D:5E:6F:70:14",
+      "deviceName": "Desk light bar",
+      "type": "devices.types.light",
+      "capabilities": [
+        {
+          "type": "devices.capabilities.on_off",
+          "instance": "powerSwitch",
+          "parameters": {
+            "dataType": "ENUM",
+            "options": [
+              { "name": "on", "value": 1 },
+              { "name": "off", "value": 0 }
+            ]
+          }
+        },
+        {
+          "type": "devices.capabilities.range",
+          "instance": "brightness",
+          "parameters": {
+            "unit": "unit.percent",
+            "dataType": "INTEGER",
+            "range": { "min": 1, "max": 100, "precision": 1 }
+          }
+        },
+        {
+          "type": "devices.capabilities.color_setting",
+          "instance": "colorRgb",
+          "parameters": {
+            "dataType": "INTEGER",
+            "range": { "min": 0, "max": 16777215, "precision": 1 }
+          }
+        },
+        {
+          "type": "devices.capabilities.color_setting",
+          "instance": "colorTemperatureK",
+          "parameters": {
+            "dataType": "INTEGER",
+            "range": { "min": 2000, "max": 9000, "precision": 1 }
+          }
+        }
+      ]
+    }
+  ]
+}
