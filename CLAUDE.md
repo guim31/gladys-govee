@@ -199,6 +199,12 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
 - `light/temperature` avec l'unité `kelvin` et des bornes en kelvins : le front l'affiche comme
   une vraie échelle de température (sinon il devine mired ou ratio d'après les bornes).
 
+## CI
+
+- Le `docker build` de la CI tirait `node:24-alpine` depuis Docker Hub en anonyme et tombait en
+  **429 Too Many Requests** sur les runners partagés. Le `Dockerfile` tire la même image officielle
+  depuis le miroir `public.ecr.aws/docker/library/`, sans quota anonyme bloquant.
+
 ## Store
 
 - Validateur officiel, depuis la racine : `npx -y github:GladysAssistant/integration-store .`
