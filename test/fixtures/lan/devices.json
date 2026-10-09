@@ -1,0 +1,113 @@
+{
+  "_comment": "Govee LAN API answers, in the format of the Govee LAN API documentation (scan answer with BLE/Wi-Fi versions; devStatus with onOff, brightness, color, colorTemInKelvin). Device ids anonymized, IPs in the 192.0.2.0/24 documentation range.",
+  "devices": [
+    {
+      "label": "A19 bulb, the most common LAN model",
+      "ip": "192.0.2.21",
+      "scan": {
+        "device": "1A:2B:3C:4D:5E:6F:70:01",
+        "sku": "H6008",
+        "bleVersionHard": "3.01.01",
+        "bleVersionSoft": "1.03.01",
+        "wifiVersionHard": "1.00.10",
+        "wifiVersionSoft": "1.02.03"
+      },
+      "status": {
+        "onOff": 1,
+        "brightness": 80,
+        "color": { "r": 255, "g": 0, "b": 0 },
+        "colorTemInKelvin": 0
+      }
+    },
+    {
+      "label": "RGBIC floor lamp, 2700-6500 K only",
+      "ip": "192.0.2.22",
+      "scan": {
+        "device": "1A:2B:3C:4D:5E:6F:70:02",
+        "sku": "H6076",
+        "bleVersionHard": "3.02.01",
+        "bleVersionSoft": "1.00.18",
+        "wifiVersionHard": "1.00.10",
+        "wifiVersionSoft": "1.02.11"
+      },
+      "status": {
+        "onOff": 0,
+        "brightness": 100,
+        "color": { "r": 255, "g": 214, "b": 170 },
+        "colorTemInKelvin": 4000
+      }
+    },
+    {
+      "label": "RGBIC light strip",
+      "ip": "192.0.2.23",
+      "scan": {
+        "device": "1A:2B:3C:4D:5E:6F:70:03",
+        "sku": "H619A",
+        "bleVersionHard": "3.01.01",
+        "bleVersionSoft": "1.04.05",
+        "wifiVersionHard": "1.00.10",
+        "wifiVersionSoft": "1.02.14"
+      },
+      "status": {
+        "onOff": 1,
+        "brightness": 35,
+        "color": { "r": 0, "g": 120, "b": 255 },
+        "colorTemInKelvin": 0
+      }
+    },
+    {
+      "label": "TV light bars, colour without white tones",
+      "ip": "192.0.2.24",
+      "scan": {
+        "device": "1A:2B:3C:4D:5E:6F:70:04",
+        "sku": "H6043",
+        "bleVersionHard": "3.01.01",
+        "bleVersionSoft": "1.00.12",
+        "wifiVersionHard": "1.00.10",
+        "wifiVersionSoft": "1.02.06"
+      },
+      "status": {
+        "onOff": 1,
+        "brightness": 50,
+        "color": { "r": 120, "g": 0, "b": 255 },
+        "colorTemInKelvin": 0
+      }
+    },
+    {
+      "label": "Outdoor string lights, brightness only",
+      "ip": "192.0.2.25",
+      "scan": {
+        "device": "1A:2B:3C:4D:5E:6F:70:05",
+        "sku": "H7012",
+        "bleVersionHard": "3.01.01",
+        "bleVersionSoft": "1.00.03",
+        "wifiVersionHard": "1.00.10",
+        "wifiVersionSoft": "1.02.01"
+      },
+      "status": {
+        "onOff": 0,
+        "brightness": 60,
+        "color": { "r": 0, "g": 0, "b": 0 },
+        "colorTemInKelvin": 0
+      }
+    },
+    {
+      "label": "A model the table does not know yet",
+      "ip": "192.0.2.26",
+      "scan": {
+        "device": "1A:2B:3C:4D:5E:6F:70:06",
+        "sku": "H9999",
+        "bleVersionHard": "3.01.01",
+        "bleVersionSoft": "1.00.01",
+        "wifiVersionHard": "1.00.10",
+        "wifiVersionSoft": "1.00.01"
+      },
+      "status": {
+        "onOff": 1,
+        "brightness": 100,
+        "color": { "r": 255, "g": 255, "b": 255 },
+        "colorTemInKelvin": 6500
+      }
+    }
+  ]
+}

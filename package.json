@@ -1,8 +1,8 @@
 {
-  "name": "gladys-integration-template-js",
+  "name": "gladys-govee",
   "version": "1.0.0",
   "private": true,
-  "description": "Official starter template to build an external integration for Gladys Assistant with the JavaScript SDK.",
+  "description": "Govee lights for Gladys Assistant, over the local network (LAN API), cloud API optional.",
   "type": "module",
   "main": "index.js",
   "scripts": {

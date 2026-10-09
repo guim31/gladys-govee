@@ -1,77 +1,117 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { validateWidgetContent } from '@gladysassistant/integration-sdk';
-import { buildDiscoveredDevices } from '../src/devices/index.js';
-import { simulateLanSession } from '../src/devices/plug.js';
-import { DEMO_STATUS_WIDGET, WIDGETS, refreshWidgets } from '../src/widgets.js';
-import { normalizeConfig } from '../src/config.js';
-import { createFakeGladys } from './helpers/fakeGladys.js';
+import { LAN_FIXTURES, addressesOf, createWorld, deviceId } from './helpers/world.js';
 
-const gladys = createFakeGladys();
-const config = normalizeConfig();
-const demoStatus = WIDGETS[DEMO_STATUS_WIDGET];
+const BULB = LAN_FIXTURES[0]; // H6008: colour, white tones, scenes
+const TV_BARS = LAN_FIXTURES[3]; // H6043: colour, no white tones
+const STRING_LIGHTS = LAN_FIXTURES[4]; // H7012: brightness only
 
-// What the SDK passes to onWidgetGet, plus the config index.js adds.
-const getContent = (cfg = config) =>
-  demoStatus.get(gladys, { settings: {}, language: 'en', units: 'metric', config: cfg });
+const get = (gladys, device, language = 'en') =>
+  gladys.fake.call('widgetGet:light_presets', {
+    settings: device ? { device } : {},
+    language,
+    units: 'metric',
+  });
+const act = (gladys, device, actionKey, values) =>
+  gladys.fake.call('widgetAction:light_presets', actionKey, {}, { settings: { device }, values });
 
-test('the demo_status content is rendered exactly as sent', async () => {
-  // [] = nothing the core would drop, truncate or trim to the content budget.
-  assert.deepEqual(validateWidgetContent(await getContent()), []);
-});
+async function world() {
+  return createWorld({ config: { lan_addresses: addressesOf(), api_key: 'test-key' } });
+}
 
-test('the degraded plug connection content is valid too', async () => {
-  simulateLanSession(false);
+test('every content the widget can produce renders exactly as sent', async () => {
+  const { gladys, app } = await world();
   try {
-    const content = await getContent();
-    assert.deepEqual(validateWidgetContent(content), []);
-    const status = content.components.find((component) => component.type === 'status');
-    assert.ok(
-      status.items.some((item) => item.color === 'warning'),
-      'degraded shows a warning',
-    );
+    const contents = [await get(gladys), await get(gladys, 'ext:test-integration:device:00')];
+    for (const device of gladys.discoveredDevices) {
+      for (const language of ['en', 'fr']) {
+        contents.push(await get(gladys, device.external_id, language));
+      }
+    }
+    for (const content of contents) {
+      // [] = nothing the core would drop, truncate or trim to the budget.
+      assert.deepEqual(validateWidgetContent(content), [], JSON.stringify(content));
+    }
   } finally {
-    simulateLanSession(true);
+    app.stop();
   }
 });
 
-test('the live tiles reference features the integration publishes', async () => {
-  const featureIds = new Set(
-    buildDiscoveredDevices(gladys, config).flatMap((device) =>
-      device.features.map((feature) => feature.external_id),
-    ),
-  );
-  const liveTiles = (await getContent()).components.filter((c) => c.device_feature);
-  assert.ok(liveTiles.length > 0, 'the template demonstrates a device-bound tile');
-  for (const tile of liveTiles) {
-    assert.ok(featureIds.has(tile.device_feature), `unknown feature ${tile.device_feature}`);
+test('live tiles point at features the device publishes', async () => {
+  const { gladys, app } = await world();
+  try {
+    const featureIds = new Set(
+      gladys.discoveredDevices.flatMap((d) => d.features.map((f) => f.external_id)),
+    );
+    for (const device of gladys.discoveredDevices) {
+      const content = await get(gladys, device.external_id);
+      for (const component of content.components.filter((c) => c.device_feature)) {
+        assert.ok(featureIds.has(component.device_feature), component.device_feature);
+      }
+    }
+  } finally {
+    app.stop();
   }
 });
 
-test('every button action of the content is handled and answers a short toast', async () => {
-  const buttons = (await getContent()).components.filter((c) => c.type === 'button' && c.action);
-  assert.ok(buttons.length > 0, 'the template demonstrates a widget action');
-  for (const { action } of buttons) {
-    const message = await demoStatus.action(gladys, {
-      actionKey: action.key,
-      params: action.params ?? {},
-      settings: {},
-      config,
-    });
-    assert.ok(message.en, 'the toast carries at least the mandatory `en` text');
-    assert.ok(message.en.length <= 200, 'toasts are capped at 200 characters');
+test('the buttons follow what the model can do', async () => {
+  const { gladys, app } = await world();
+  try {
+    const keys = async (fixture) =>
+      (await get(gladys, deviceId(gladys, fixture.scan.device))).components
+        .filter((c) => c.type === 'button')
+        .map((c) => c.action.key);
+    assert.deepEqual(await keys(BULB), ['warm', 'daylight', 'color', 'scene']);
+    assert.deepEqual(await keys(TV_BARS), ['color', 'scene']);
+    assert.deepEqual(await keys(STRING_LIGHTS), []);
+  } finally {
+    app.stop();
   }
 });
 
-test('an unknown widget action fails, so the user sees the error', async () => {
-  await assert.rejects(
-    demoStatus.action(gladys, { actionKey: 'unknown', params: {}, settings: {}, config }),
-    /Unknown widget action/,
-  );
+test('presets drive the light, and the active one is marked by its icon', async () => {
+  const { gladys, network, app } = await world();
+  try {
+    const bulbId = deviceId(gladys, BULB.scan.device);
+    const bulb = network.byIp(BULB.ip);
+    const icons = async () =>
+      Object.fromEntries(
+        (await get(gladys, bulbId)).components
+          .filter((c) => c.type === 'button')
+          .map((c) => [c.action.key, c.icon]),
+      );
+    assert.equal((await icons()).color, 'check-circle', 'the bulb starts in colour mode');
+
+    const result = await act(gladys, bulbId, 'warm');
+    assert.deepEqual(result, { message: { en: 'Sent to the light.', fr: 'Envoyé à la lampe.' } });
+    assert.equal(bulb.status.colorTemInKelvin, 2700);
+    assert.equal((await icons()).warm, 'check-circle');
+    assert.equal((await icons()).color, 'droplet');
+
+    await act(gladys, bulbId, 'color', { color: 'blue' });
+    assert.deepEqual(bulb.status.color, { r: 0, g: 0, b: 255 });
+
+    await act(gladys, bulbId, 'scene', { scene: 'candlelight' });
+    assert.equal(Buffer.from(bulb.lastPtReal[0], 'base64')[3], 0x09);
+    const content = await get(gladys, bulbId);
+    assert.equal(content.components.find((c) => c.label === 'Mode').value, 'Candlelight');
+    assert.equal((await icons()).scene, 'check-circle');
+
+    await assert.rejects(act(gladys, bulbId, 'disco'), /Unknown action/);
+    await assert.rejects(act(gladys, undefined, 'warm'), /Choose a Govee light/);
+  } finally {
+    app.stop();
+  }
 });
 
-test('refreshWidgets nudges every widget', () => {
-  const fake = createFakeGladys();
-  refreshWidgets(fake);
-  assert.deepEqual(fake.widgetRefreshes, Object.keys(WIDGETS));
+test('white presets respect the model range (2700-6500 K floor lamp)', async () => {
+  const { gladys, network, app } = await world();
+  try {
+    const lamp = LAN_FIXTURES[1];
+    await act(gladys, deviceId(gladys, lamp.scan.device), 'daylight');
+    assert.equal(network.byIp(lamp.ip).status.colorTemInKelvin, 6500);
+  } finally {
+    app.stop();
+  }
 });

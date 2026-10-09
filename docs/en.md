@@ -1,59 +1,212 @@
-# Demo Devices Template
+# Govee
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+Control your Govee Wi-Fi bulbs, light strips, floor lamps and string lights
+from Gladys, **over your local network**: no cloud, no account, no lag. A free
+Govee API key optionally adds the devices the local API does not cover (smart
+plugs, thermometers, humidifiers...).
+
+> **Developed without the hardware: feedback welcome.** This integration was
+> built from the official Govee documentation and from the tests of the
+> open-source projects that use Govee's local API, not on real devices. If
+> something does not work with your model, please tell us on the
+> [Gladys forum](https://community.gladysassistant.com/) or in a
+> [GitHub issue](https://github.com/guim31/gladys-govee/issues), with your
+> model number (it starts with H, e.g. H6008) and the output of **Search and
+> diagnose**.
 
 ## What you get
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+| Device                                                | In Gladys                                                                          | How                     |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------- |
+| Bulbs, light strips, lamps, light bars, string lights | On/off, brightness, color, color temperature (white tones), depending on the model | Local network (LAN API) |
+| Govee lights without LAN control                      | Same features                                                                      | Cloud (API key)         |
+| Smart plugs                                           | On/off                                                                             | Cloud (API key)         |
+| Wi-Fi thermometers / hygrometers                      | Temperature, humidity                                                              | Cloud (API key)         |
+| Humidifiers, purifiers, fans, heaters                 | On/off, and their on/off options the cloud exposes (night light, oscillation...)   | Cloud (API key)         |
+
+On top of the device features:
+
+- a **Govee light presets** dashboard widget: warm white, daylight, a short
+  list of colors and the Govee built-in scenes, one tap each;
+- a **Start a Govee scene** scene action: sunrise, sunset, movie,
+  candlelight, romantic, twinkle... on any light that supports Govee scenes;
+- a badge on each device telling whether Gladys reaches it locally or
+  through the cloud.
+
+The color temperature slider follows each model's own range (for instance
+2700 K to 6500 K on the H6076 floor lamp, 2000 K to 9000 K on most bulbs).
+Temperatures are shown in **°F or °C following your Gladys profile**: Govee
+thermometers report Fahrenheit and Gladys converts if you chose Celsius.
+
+## Before you start: turn on LAN Control
+
+Govee's local API is off by default, **for each light**:
+
+1. Open the **Govee Home** app and tap the light.
+2. Tap the **gear icon** (Settings) in the top-right corner.
+3. Turn on **LAN Control**.
+
+No **LAN Control** switch? Your model (or its firmware) does not offer the
+local API: update the firmware from the same Settings screen, or use the cloud
+API key (below). Bluetooth-only Govee devices (no Wi-Fi) cannot be reached by
+Gladys at all.
+
+Then find the **IP address** of each light. Your router lists them among its
+connected devices: Govee lights often show up as `ihoment_` followed by their
+model, e.g. `ihoment_H6008_A1B2`. We recommend giving each light a **fixed IP
+address** (a "DHCP reservation" in your router's settings): the integration
+follows a light that changes address when it is inside the range you entered,
+not elsewhere.
+
+## Installation
+
+Install **Govee** from the integration store of Gladys (Gladys 5.1 or later).
+The install screen asks you to let the integration **listen to UDP network
+announcements on port 4002**: accept. This is the port Govee lights answer
+on (see [How it works](#how-it-works)).
 
 ## Configuration
 
-1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+In the **Configuration** tab of the integration:
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+- **Light IP addresses or ranges**: the addresses of your lights, separated by
+  commas. You can also enter a range (`192.168.1.20-60`) or your whole network
+  (`192.168.1.0/24`), and the integration finds the lights in it. Up to 1024
+  addresses.
+- **Light state refresh**: how often Gladys asks the lights for their state,
+  to see what you change from the Govee app or a remote (every 30 seconds by
+  default). Commands sent from Gladys are confirmed right away, whatever this
+  setting.
+- **Language of the feature names**: English or French names for the features
+  of the devices you add next (Light, Brightness...). Device names come from
+  the Govee app when the cloud API is set, otherwise they read `Govee H6008
+A1B2` (model and end of the device id): rename them in Gladys as you like.
+- **Govee API key** (optional) and **Cloud state refresh**: see
+  [The cloud API](#the-cloud-api-optional).
+- **Prefer the local connection**: when a light is reachable both locally and
+  through the cloud, use the local network (on by default). If a light stops
+  answering locally, Gladys drives it through the cloud and the badge turns
+  orange to tell you.
+
+Save, then open the **Discovery** tab: your Govee devices are listed there,
+add them to Gladys. Click **Scan** to search again at any time.
+
+## The cloud API (optional)
+
+Without a key, the integration is 100% local and never contacts Govee. With a
+key, Gladys also reaches the devices that have no local API, and uses the
+cloud as a fallback when a light does not answer locally.
+
+Getting a key is free: in the **Govee Home** app, open your **Profile**, tap
+the **gear icon** (Settings), then **Apply for API Key**. Govee emails the key
+within minutes. Paste it in the **Govee API key** field.
+
+**Quota.** Govee allows **10,000 requests a day** per account. The integration
+counts its own calls (the counter restarts at midnight UTC) and:
+
+- lists your devices when it starts, every 6 hours and when you click
+  **Scan**;
+- reads the state of the devices it drives through the cloud once per **Cloud
+  state refresh** (10 minutes by default), never the lights it reaches
+  locally;
+- stretches that interval by itself if your number of devices would exceed
+  8,000 requests a day, and stops reading states at 8,000: the last 2,000
+  requests stay available for your commands.
+
+With 10 cloud devices refreshed every 10 minutes, that is about 1,450 requests
+a day.
 
 ## Actions
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+In the **Configuration** tab:
+
+- **Search and diagnose**: searches for your devices now and tells you what it
+  found: how many lights answer locally, the entries of the address field it
+  could not read, how the answers reach Gladys, and the state of the cloud
+  connection (number of devices, requests used today).
+- **Identify a device**: pick a device, it blinks twice and goes back to its
+  state. Handy to tell identical bulbs apart.
 
 ## Scenes
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+The **Start a Govee scene** action (scene editor, **Integrations** category)
+starts one of the Govee built-in scenes on a light: sunrise, sunset, movie,
+dating, romantic, twinkle, candlelight, breathe, snowflake, energetic,
+crossing. It turns the light on first if needed. It works on lights controlled
+locally whose model supports Govee scenes.
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+To set a color, a white tone or the brightness in a scene, use the usual
+Gladys **Control a device** action on the light's features.
 
 ## Dashboard
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+Add the **Govee light presets** widget to a dashboard and pick a light in its
+settings. It shows the light's brightness and current mode, and up to four
+buttons, depending on what the model can do:
+
+- **Warm white** (2700 K) and **Daylight** (6500 K), adjusted to the model's
+  range;
+- **Color**: pick one of eight named colors;
+- **Scene**: pick one of the Govee built-in scenes.
+
+The active preset is marked with a check icon.
+
+## How it works
+
+Govee lights answer the local API on UDP port **4002** of the computer that
+asked. Gladys runs each integration in its own container, behind a network
+bridge: Govee's automatic discovery (a multicast message) cannot cross it,
+which is why the integration needs the addresses of your lights, or a range to
+scan.
+
+The integration sends its requests to each light directly. The answers come
+back either straight to the integration, or, when the network does not let
+them through, to Gladys itself, which listens on port 4002 for a moment on the
+integration's behalf (the permission you accepted at install). **Search and
+diagnose** tells you which of the two your network uses. Commands (on/off,
+color...) need no answer and always go straight to the light.
+
+## Limits
+
+- **Not supported yet**: per-segment colors (RGBIC strips are driven as a
+  whole), DIY scenes, music mode, the scenes of the Govee app beyond the
+  eleven built-in ones, and the Govee cloud scenes.
+- **States are read, not pushed**: a change made from the Govee app or a
+  remote shows up at the next refresh (30 seconds by default).
+- **Another Govee program on the same computer** (Home Assistant's Govee lights
+  local integration, Homebridge...) also listens on port 4002 and may receive
+  the answers meant for Gladys: the lights then look unreachable while
+  commands still work. Run it on another computer, or use the cloud API key.
+- Some recent Govee lights also support **Matter**: you can add those to
+  Gladys through its Matter integration instead.
+- Govee does not publish the color temperature range of every model; when the
+  integration does not know your model, it uses 2000 K to 9000 K, the range of
+  Govee's documentation. Unknown models get every light feature: tell us which
+  ones actually work.
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+**No light found.** Check that **LAN Control** is on in the Govee app for each
+light, that the IP addresses are right (your router's device list), and that
+the lights are on the same network as Gladys. Then run **Search and
+diagnose**.
+
+**A light shows "unreachable".** It did not answer the last three state
+requests: it may be unplugged, have changed IP address, or its answers may be
+captured by another program (see [Limits](#limits)). Run **Search and
+diagnose**.
+
+**"Gladys refused the capture on port 4002".** Update Gladys, and check that
+you accepted the network permission when installing the integration (reinstall
+it if needed).
+
+**"Govee API key refused".** Check the key in the configuration; ask the
+Govee app for a new one if needed.
+
+For more detail, open the integration logs from Gladys: every light found,
+every refused request and every fallback to the cloud is written there.
+
+---
+
+This integration is not affiliated with, endorsed or sponsored by Govee.
+"Govee" is a trademark of its owner.

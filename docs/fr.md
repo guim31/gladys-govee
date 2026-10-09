@@ -1,65 +1,228 @@
-# Template de démonstration
+# Govee
 
-Ceci est la documentation utilisateur de l'intégration. Gladys ré-héberge ce
-fichier et affiche un lien **Documentation** permanent vers lui dans l'écran
-de configuration (dans la langue de l'utilisateur, avec l'anglais en repli) —
-c'est au moment de configurer que l'utilisateur en a le plus besoin. Gardez
-les courtes indications d'accueil dans les blocs `section` du `config_schema`
-du manifest ; mettez ici le pas-à-pas détaillé (captures d'écran, dépannage…).
+Pilotez vos ampoules, rubans LED, lampadaires et guirlandes Govee Wi-Fi depuis
+Gladys, **en réseau local** : sans cloud, sans compte, sans latence. Une clé
+d'API Govee gratuite ajoute, si vous le souhaitez, les appareils que l'API
+locale ne couvre pas (prises, thermomètres, humidificateurs…).
+
+> **Développée sans le matériel : retours bienvenus.** Cette intégration a été
+> écrite d'après la documentation officielle de Govee et les tests des projets
+> open source qui utilisent l'API locale de Govee, pas sur de vrais appareils.
+> Si quelque chose ne fonctionne pas avec votre modèle, dites-le sur le
+> [forum Gladys](https://community.gladysassistant.com/) ou dans une
+> [issue GitHub](https://github.com/guim31/gladys-govee/issues), avec la
+> référence de votre modèle (elle commence par H, par exemple H6008) et le
+> résultat de **Rechercher et diagnostiquer**.
 
 ## Ce que vous obtenez
 
-Six appareils de démonstration apparaissent après l'installation : une
-station météo (vraies données Open-Meteo), un interrupteur, une lampe
-variable, une prise connectée avec mesure de puissance, un détecteur de
-mouvement et une caméra.
+| Appareil                                                    | Dans Gladys                                                                                 | Comment                |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------- |
+| Ampoules, rubans LED, lampes, barres lumineuses, guirlandes | Marche/arrêt, luminosité, couleur, température de couleur (blancs), selon le modèle         | Réseau local (API LAN) |
+| Lampes Govee sans contrôle LAN                              | Les mêmes fonctionnalités                                                                   | Cloud (clé d'API)      |
+| Prises connectées                                           | Marche/arrêt                                                                                | Cloud (clé d'API)      |
+| Thermomètres-hygromètres Wi-Fi                              | Température, humidité                                                                       | Cloud (clé d'API)      |
+| Humidificateurs, purificateurs, ventilateurs, chauffages    | Marche/arrêt, et leurs options marche/arrêt exposées par le cloud (veilleuse, oscillation…) | Cloud (clé d'API)      |
+
+En plus des fonctionnalités des appareils :
+
+- un widget de tableau de bord **Préréglages Govee** : blanc chaud, lumière du
+  jour, une courte liste de couleurs et les scènes intégrées Govee, en un geste
+  chacun ;
+- une action de scène **Lancer une scène Govee** : lever de soleil, coucher de
+  soleil, cinéma, bougie, romantique, scintillement… sur toute lampe qui
+  connaît les scènes Govee ;
+- un badge sur chaque appareil, qui indique si Gladys le joint en local ou par
+  le cloud.
+
+Le curseur de température de couleur suit la plage propre à chaque modèle (par
+exemple de 2700 K à 6500 K sur le lampadaire H6076, de 2000 K à 9000 K sur la
+plupart des ampoules). Les températures s'affichent **en °C ou en °F selon
+votre profil Gladys** : les thermomètres Govee mesurent en Fahrenheit, Gladys
+convertit si vous avez choisi Celsius.
+
+## Avant de commencer : activer le contrôle LAN
+
+L'API locale de Govee est désactivée par défaut, **sur chaque lampe** :
+
+1. Ouvrez l'application **Govee Home** et touchez la lampe.
+2. Touchez la **roue dentée** (Réglages) en haut à droite.
+3. Activez **LAN Control**.
+
+Pas d'interrupteur **LAN Control** ? Votre modèle (ou son micrologiciel) ne
+propose pas l'API locale : mettez le micrologiciel à jour depuis le même écran
+de réglages, ou utilisez la clé d'API cloud (plus bas). Les appareils Govee
+uniquement Bluetooth (sans Wi-Fi) sont hors de portée de Gladys.
+
+Relevez ensuite l'**adresse IP** de chaque lampe. Votre box ou votre routeur
+les liste parmi les appareils connectés : les lampes Govee y apparaissent
+souvent sous le nom `ihoment_` suivi du modèle, par exemple
+`ihoment_H6008_A1B2`. Nous conseillons de donner à chaque lampe une **adresse
+IP fixe** (un « bail DHCP statique » dans les réglages de la box) :
+l'intégration suit une lampe qui change d'adresse tant qu'elle reste dans la
+plage saisie, pas au-delà.
+
+## Installation
+
+Installez **Govee** depuis le catalogue d'intégrations de Gladys (Gladys 5.1
+ou plus récent). L'écran d'installation vous demande d'autoriser l'intégration
+à **écouter les annonces réseau UDP sur le port 4002** : acceptez. C'est le
+port sur lequel les lampes Govee répondent (voir
+[Comment ça marche](#comment-ça-marche)).
 
 ## Configuration
 
-1. Ouvrez l'onglet **Configuration** de l'intégration.
-2. Renseignez la **latitude** et la **longitude** que la station météo de
-   démonstration doit observer (Paris par défaut), et choisissez votre unité
-   de température.
-3. Enregistrez : les appareils apparaissent dans l'onglet **Découverte**,
-   prêts à être ajoutés.
+Dans l'onglet **Configuration** de l'intégration :
 
-Le réglage **Préférer la connexion locale** pilote la prise de
-démonstration : elle affiche en badge le canal réellement utilisé (local ou
-cloud), avec un point orange quand elle fonctionne en mode dégradé (local
-refusé, bascule cloud).
+- **Adresses IP ou plages des lampes** : les adresses de vos lampes, séparées
+  par des virgules. Vous pouvez aussi saisir une plage (`192.168.1.20-60`) ou
+  votre réseau entier (`192.168.1.0/24`) : l'intégration y cherche les lampes.
+  1024 adresses au plus.
+- **Rafraîchissement de l'état des lampes** : la fréquence à laquelle Gladys
+  interroge les lampes, pour voir ce que vous changez depuis l'application
+  Govee ou une télécommande (toutes les 30 secondes par défaut). Les commandes
+  envoyées depuis Gladys sont confirmées aussitôt, quel que soit ce réglage.
+- **Langue des noms de fonctionnalités** : noms anglais ou français des
+  fonctionnalités des appareils que vous ajouterez ensuite (Éclairage,
+  Luminosité…). Le nom des appareils vient de l'application Govee quand l'API
+  cloud est configurée, sinon il s'écrit `Govee H6008 A1B2` (modèle et fin de
+  l'identifiant) : renommez-les dans Gladys à votre guise.
+- **Clé d'API Govee** (facultative) et **Rafraîchissement par le cloud** : voir
+  [L'API cloud](#lapi-cloud-facultative).
+- **Préférer la connexion locale** : quand une lampe est joignable à la fois en
+  local et par le cloud, passer par le réseau local (activé par défaut). Si une
+  lampe ne répond plus en local, Gladys la pilote par le cloud et le badge
+  passe à l'orange pour vous le signaler.
+
+Enregistrez, puis ouvrez l'onglet **Découverte** : vos appareils Govee y sont
+listés, ajoutez-les à Gladys. Le bouton **Scanner** relance une recherche à
+tout moment.
+
+## L'API cloud (facultative)
+
+Sans clé, l'intégration est 100 % locale et ne contacte jamais Govee. Avec une
+clé, Gladys joint aussi les appareils sans API locale, et passe par le cloud
+quand une lampe ne répond pas en local.
+
+La clé est gratuite : dans l'application **Govee Home**, ouvrez votre
+**Profil**, touchez la **roue dentée** (Réglages), puis **Apply for API Key**.
+Govee envoie la clé par e-mail en quelques minutes. Collez-la dans le champ
+**Clé d'API Govee**.
+
+**Quota.** Govee autorise **10 000 requêtes par jour** et par compte.
+L'intégration compte ses propres appels (le compteur repart à zéro à minuit
+UTC, soit 1 h ou 2 h du matin en France) et :
+
+- liste vos appareils au démarrage, toutes les 6 heures et quand vous cliquez
+  sur **Scanner** ;
+- relève l'état des appareils qu'elle pilote par le cloud une fois par
+  **Rafraîchissement par le cloud** (10 minutes par défaut), jamais celui des
+  lampes jointes en local ;
+- allonge d'elle-même cet intervalle si votre nombre d'appareils dépassait
+  8 000 requêtes par jour, et cesse de relever les états à 8 000 : les 2 000
+  dernières requêtes restent disponibles pour vos commandes.
+
+Avec 10 appareils cloud rafraîchis toutes les 10 minutes, cela fait environ
+1 450 requêtes par jour.
 
 ## Actions
 
-- **Tester le fournisseur météo** — effectue une requête en direct vers
-  Open-Meteo et affiche la température et l'humidité actuelles sous le
-  bouton.
-- **Identifier un appareil** — choisissez un de vos appareils dans la liste
-  et il se signale (la lampe de démonstration « clignote » dans les logs).
+Dans l'onglet **Configuration** :
+
+- **Rechercher et diagnostiquer** : lance une recherche et indique ce qu'elle a
+  trouvé : combien de lampes répondent en local, les entrées du champ
+  d'adresses qu'elle n'a pas su lire, le chemin qu'empruntent les réponses, et
+  l'état de la connexion cloud (nombre d'appareils, requêtes du jour).
+- **Identifier un appareil** : choisissez un appareil, il clignote deux fois
+  puis revient à son état. Pratique pour distinguer des ampoules identiques.
 
 ## Scènes
 
-L'intégration ajoute ses propres cartes à l'éditeur de scènes (Gladys 5.1
-ou plus récent), dans la catégorie **Intégrations** :
+L'action **Lancer une scène Govee** (éditeur de scènes, catégorie
+**Intégrations**) lance une des scènes intégrées Govee sur une lampe : lever
+de soleil, coucher de soleil, cinéma, rendez-vous, romantique, scintillement,
+bougie, respiration, flocon de neige, énergique, croisement. Elle allume la
+lampe d'abord si besoin. Elle fonctionne sur les lampes pilotées en local dont
+le modèle connaît les scènes Govee.
 
-- **Mouvement détecté** (déclencheur) — lance la scène quand un détecteur
-  de démonstration voit bouger quelque chose. Choisissez éventuellement le
-  détecteur et ce qui a bougé (personne, animal) ; laissés vides, toute
-  détection correspond. Les actions suivantes peuvent lire ce qui a bougé
-  avec `{{triggerEvent.data.target}}`.
-- **Identifier un appareil** (action) — fait se signaler l'appareil choisi.
-  Elle indique si l'appareil a pu se signaler, pour que les actions
-  suivantes puissent en dépendre.
+Pour régler une couleur, un blanc ou la luminosité dans une scène, utilisez
+l'action habituelle **Contrôler un appareil** de Gladys sur les
+fonctionnalités de la lampe.
 
 ## Tableau de bord
 
-Ajoutez le widget **État de la démo** à un tableau de bord : il affiche en
-direct la température de la station météo et la puissance de la prise du
-bureau, la connexion utilisée par la prise (en orange si dégradée) et la
-position observée. Son bouton **Identifier la lampe** fait se signaler la
-lampe de démonstration.
+Ajoutez le widget **Préréglages Govee** à un tableau de bord et choisissez une
+lampe dans ses réglages. Il affiche la luminosité et le mode en cours de la
+lampe, et jusqu'à quatre boutons, selon ce que permet le modèle :
+
+- **Blanc chaud** (2700 K) et **Lumière du jour** (6500 K), ajustés à la plage
+  du modèle ;
+- **Couleur** : choisissez parmi huit couleurs nommées ;
+- **Scène** : choisissez une des scènes intégrées Govee.
+
+Le préréglage actif est marqué d'une coche.
+
+## Comment ça marche
+
+Les lampes Govee répondent à l'API locale sur le port UDP **4002** de
+l'ordinateur qui les interroge. Gladys fait tourner chaque intégration dans
+son propre conteneur, derrière un pont réseau : la recherche automatique de
+Govee (un message multicast) ne le traverse pas, d'où le besoin des adresses
+de vos lampes, ou d'une plage à parcourir.
+
+L'intégration envoie ses requêtes directement à chaque lampe. Les réponses
+reviennent soit directement à l'intégration, soit, quand le réseau ne les
+laisse pas passer, à Gladys elle-même, qui écoute un instant le port 4002 pour
+le compte de l'intégration (l'autorisation acceptée à l'installation).
+**Rechercher et diagnostiquer** vous dit lequel des deux chemins votre réseau
+emprunte. Les commandes (marche/arrêt, couleur…) n'attendent pas de réponse et
+vont toujours directement à la lampe.
+
+## Limites
+
+- **Pas encore pris en charge** : les couleurs par segment (les rubans RGBIC
+  sont pilotés d'un bloc), les scènes DIY, le mode musique, les scènes de
+  l'application Govee au-delà des onze scènes intégrées, et les scènes cloud.
+- **Les états sont relevés, pas poussés** : un changement fait depuis
+  l'application Govee ou une télécommande apparaît au rafraîchissement suivant
+  (30 secondes par défaut).
+- **Un autre programme Govee sur le même ordinateur** (l'intégration « Govee
+  lights local » de Home Assistant, Homebridge…) écoute lui aussi le port 4002
+  et peut recevoir les réponses destinées à Gladys : les lampes paraissent
+  alors injoignables alors que les commandes passent. Faites-le tourner sur un
+  autre ordinateur, ou utilisez la clé d'API cloud.
+- Certaines lampes Govee récentes gèrent aussi **Matter** : vous pouvez les
+  ajouter à Gladys par son intégration Matter à la place.
+- Govee ne publie pas la plage de température de couleur de chaque modèle :
+  quand l'intégration ne connaît pas votre modèle, elle utilise 2000 K à
+  9000 K, la plage de la documentation Govee. Les modèles inconnus reçoivent
+  toutes les fonctionnalités d'éclairage : dites-nous lesquelles fonctionnent
+  vraiment.
 
 ## Dépannage
 
-L'intégration journalise tout ce qu'elle fait : consultez les logs de
-l'intégration depuis l'interface Gladys (ou `docker logs` sur l'hôte) avec
-`LOG_LEVEL=debug` pour le détail complet.
+**Aucune lampe trouvée.** Vérifiez que **LAN Control** est activé dans
+l'application Govee pour chaque lampe, que les adresses IP sont justes (liste
+des appareils de votre box) et que les lampes sont sur le même réseau que
+Gladys. Lancez ensuite **Rechercher et diagnostiquer**.
+
+**Une lampe est « injoignable ».** Elle n'a pas répondu aux trois dernières
+interrogations : elle est peut-être débranchée, a changé d'adresse IP, ou ses
+réponses sont captées par un autre programme (voir [Limites](#limites)).
+Lancez **Rechercher et diagnostiquer**.
+
+**« Gladys a refusé la capture sur le port 4002 ».** Mettez Gladys à jour, et
+vérifiez que vous avez accepté l'autorisation réseau à l'installation de
+l'intégration (réinstallez-la au besoin).
+
+**« Clé d'API Govee refusée ».** Vérifiez la clé dans la configuration ;
+demandez-en une nouvelle dans l'application Govee si besoin.
+
+Pour plus de détails, ouvrez les logs de l'intégration depuis Gladys : chaque
+lampe trouvée, chaque requête refusée et chaque bascule vers le cloud y est
+écrite.
+
+---
+
+Cette intégration n'est ni affiliée à Govee, ni approuvée ou sponsorisée par
+Govee. « Govee » est une marque de son propriétaire.

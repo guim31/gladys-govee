@@ -1,95 +1,135 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "Govee",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Govee bulbs, light strips and lamps over the local network (LAN API), cloud API optional.",
+    "fr": "Ampoules, rubans LED et lampes Govee en réseau local (API LAN), API cloud en option."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-govee:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-govee/main/cover.png",
+  "categories": ["lighting"],
   "transports": ["local", "cloud"],
+  "network_discovery": [{ "type": "udp-broadcast", "ports": [4002] }],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": { "en": "Local control (LAN)", "fr": "Contrôle local (LAN)" },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "In the Govee Home app, open each light, tap the gear icon and turn on \"LAN Control\". Then enter the IP addresses of your lights below (find them in your router), or a range to scan.",
+        "fr": "Dans l'application Govee Home, ouvrez chaque lampe, touchez la roue dentée et activez « LAN Control ». Saisissez ensuite les adresses IP de vos lampes ci-dessous (votre box les affiche), ou une plage à parcourir."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-govee/blob/main/docs/en.md",
+          "label": { "en": "Setup guide", "fr": "Guide d'installation" }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
+      "key": "lan_addresses",
+      "type": "string",
+      "label": { "en": "Light IP addresses or ranges", "fr": "Adresses IP ou plages des lampes" },
       "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+        "en": "Separated by commas. One address (192.168.1.42), a range (192.168.1.20-60) or a whole network (192.168.1.0/24), 1024 addresses at most.",
+        "fr": "Séparées par des virgules. Une adresse (192.168.1.42), une plage (192.168.1.20-60) ou un réseau entier (192.168.1.0/24), 1024 adresses au plus."
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
-    },
-    {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+      "placeholder": {
+        "en": "e.g. 192.168.1.42, 192.168.1.0/24",
+        "fr": "ex. 192.168.1.42, 192.168.1.0/24"
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
-      "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
       "required": false,
-      "default": "celsius",
+      "default": ""
+    },
+    {
+      "key": "lan_poll_interval",
+      "type": "select",
+      "label": { "en": "Light state refresh", "fr": "Rafraîchissement de l'état des lampes" },
+      "description": {
+        "en": "How often the lights are asked for their state (changes made in the Govee app or with a remote). Gladys commands are confirmed right away.",
+        "fr": "Fréquence à laquelle les lampes sont interrogées (changements faits depuis l'application Govee ou une télécommande). Les commandes Gladys sont confirmées aussitôt."
+      },
+      "required": false,
+      "default": "30",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        { "value": "10", "label": { "en": "Every 10 seconds", "fr": "Toutes les 10 secondes" } },
+        { "value": "30", "label": { "en": "Every 30 seconds", "fr": "Toutes les 30 secondes" } },
+        { "value": "60", "label": { "en": "Every minute", "fr": "Toutes les minutes" } },
+        { "value": "120", "label": { "en": "Every 2 minutes", "fr": "Toutes les 2 minutes" } },
+        { "value": "300", "label": { "en": "Every 5 minutes", "fr": "Toutes les 5 minutes" } }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the feature names",
+        "fr": "Langue des noms de fonctionnalités"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds.",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes."
+        "en": "Names given to the features of new devices (Light, Brightness...).",
+        "fr": "Noms donnés aux fonctionnalités des nouveaux appareils (Éclairage, Luminosité…)."
       },
       "required": false,
-      "default": 300,
-      "min": 30,
-      "max": 3600
+      "default": "en",
+      "options": [
+        { "value": "en", "label": { "en": "English", "fr": "Anglais" } },
+        { "value": "fr", "label": { "en": "French", "fr": "Français" } }
+      ]
+    },
+    {
+      "key": "cloud",
+      "type": "section",
+      "label": { "en": "Govee cloud API (optional)", "fr": "API cloud Govee (facultative)" },
+      "description": {
+        "en": "Without a key the integration stays 100% local. With one, Gladys also reaches the devices without LAN control (plugs, thermometers, humidifiers...) and falls back to the cloud when a light does not answer locally. Get a free key in the Govee Home app: Profile, Settings, Apply for API Key. Govee allows 10,000 requests a day.",
+        "fr": "Sans clé, l'intégration reste 100 % locale. Avec une clé, Gladys atteint aussi les appareils sans contrôle LAN (prises, thermomètres, humidificateurs…) et passe par le cloud quand une lampe ne répond pas en local. Clé gratuite dans l'application Govee Home : Profil, Réglages, Apply for API Key. Govee autorise 10 000 requêtes par jour."
+      },
+      "links": [
+        {
+          "url": "https://developer.govee.com/",
+          "label": { "en": "Govee developer platform", "fr": "Plateforme développeur Govee" }
+        }
+      ]
+    },
+    {
+      "key": "api_key",
+      "type": "secret",
+      "label": { "en": "Govee API key", "fr": "Clé d'API Govee" },
+      "required": false
+    },
+    {
+      "key": "cloud_poll_interval",
+      "type": "select",
+      "label": { "en": "Cloud state refresh", "fr": "Rafraîchissement par le cloud" },
+      "description": {
+        "en": "For the devices reached through the cloud. Stretched automatically when needed to stay within the daily quota.",
+        "fr": "Pour les appareils joints par le cloud. Allongé automatiquement si besoin pour rester dans le quota quotidien."
+      },
+      "required": false,
+      "default": "10",
+      "options": [
+        { "value": "5", "label": { "en": "Every 5 minutes", "fr": "Toutes les 5 minutes" } },
+        { "value": "10", "label": { "en": "Every 10 minutes", "fr": "Toutes les 10 minutes" } },
+        { "value": "15", "label": { "en": "Every 15 minutes", "fr": "Toutes les 15 minutes" } },
+        { "value": "30", "label": { "en": "Every 30 minutes", "fr": "Toutes les 30 minutes" } },
+        { "value": "60", "label": { "en": "Every hour", "fr": "Toutes les heures" } }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
+      "key": "diagnose",
+      "label": { "en": "Search and diagnose", "fr": "Rechercher et diagnostiquer" },
       "timeout_seconds": 30
     },
     {
       "key": "identify",
       "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
+      "timeout_seconds": 30,
       "fields": [
         {
           "key": "device",
@@ -101,47 +141,13 @@
       ]
     }
   ],
-  "scene_triggers": [
-    {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
-      "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
-      },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
-        },
-        {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
-          "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
-          ]
-        }
-      ],
-      "variables": [
-        {
-          "key": "target",
-          "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
-        }
-      ]
-    }
-  ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
+      "key": "run_govee_scene",
+      "label": { "en": "Start a Govee scene", "fr": "Lancer une scène Govee" },
       "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+        "en": "Start a built-in Govee light scene (sunset, candlelight, movie...) on a light controlled on the LAN.",
+        "fr": "Lance une scène lumineuse intégrée Govee (coucher de soleil, bougie, cinéma…) sur une lampe pilotée en local."
       },
       "timeout_seconds": 15,
       "fields": [
@@ -149,29 +155,50 @@
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
+          "label": { "en": "Light", "fr": "Lampe" },
           "required": true
-        }
-      ],
-      "outputs": [
+        },
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "scene",
+          "type": "select",
+          "label": { "en": "Scene", "fr": "Scène" },
+          "required": true,
+          "options": [
+            { "value": "sunrise", "label": { "en": "Sunrise", "fr": "Lever de soleil" } },
+            { "value": "sunset", "label": { "en": "Sunset", "fr": "Coucher de soleil" } },
+            { "value": "movie", "label": { "en": "Movie", "fr": "Cinéma" } },
+            { "value": "dating", "label": { "en": "Dating", "fr": "Rendez-vous" } },
+            { "value": "romantic", "label": { "en": "Romantic", "fr": "Romantique" } },
+            { "value": "twinkle", "label": { "en": "Twinkle", "fr": "Scintillement" } },
+            { "value": "candlelight", "label": { "en": "Candlelight", "fr": "Bougie" } },
+            { "value": "breathe", "label": { "en": "Breathe", "fr": "Respiration" } },
+            { "value": "snowflake", "label": { "en": "Snowflake", "fr": "Flocon de neige" } },
+            { "value": "energetic", "label": { "en": "Energetic", "fr": "Énergique" } },
+            { "value": "crossing", "label": { "en": "Crossing", "fr": "Croisement" } }
+          ]
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
+      "key": "light_presets",
+      "label": { "en": "Govee light presets", "fr": "Préréglages Govee" },
       "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+        "en": "One-tap white tones, colors and built-in Govee scenes for one light.",
+        "fr": "Blancs, couleurs et scènes Govee intégrées en un geste, pour une lampe."
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "icon": "sun",
+      "action_timeout_seconds": 15,
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": { "en": "Light", "fr": "Lampe" },
+          "required": true
+        }
+      ]
     }
   ]
 }
