@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-09
+
 ### Added
 
 - Govee lights over the local network (Govee LAN API): on/off, brightness,
@@ -25,4 +27,5 @@ the notes of the version's GitHub Release.
 - "Search and diagnose" and "Identify a device" actions.
 - User documentation in English and French.
 
-[Unreleased]: https://github.com/guim31/gladys-govee/commits/main
+[Unreleased]: https://github.com/guim31/gladys-govee/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/guim31/gladys-govee/releases/tag/v1.0.1
