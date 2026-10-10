@@ -1,6 +1,6 @@
 {
   "name": "gladys-govee",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Govee lights for Gladys Assistant, over the local network (LAN API), cloud API optional.",
   "type": "module",
