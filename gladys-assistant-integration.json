@@ -185,8 +185,8 @@
       "key": "light_presets",
       "label": { "en": "Govee light presets", "fr": "Préréglages Govee" },
       "description": {
-        "en": "One-tap white tones, colors and built-in Govee scenes for one light.",
-        "fr": "Blancs, couleurs et scènes Govee intégrées en un geste, pour une lampe."
+        "en": "One-tap white tones, your favorite color and built-in Govee scenes for one light.",
+        "fr": "Blancs, votre couleur préférée et scènes Govee intégrées en un geste, pour une lampe."
       },
       "icon": "sun",
       "action_timeout_seconds": 15,
@@ -197,6 +197,64 @@
           "source": "devices",
           "label": { "en": "Light", "fr": "Lampe" },
           "required": true
+        },
+        {
+          "key": "color",
+          "type": "select",
+          "label": { "en": "Color button", "fr": "Bouton couleur" },
+          "default": "blue",
+          "options": [
+            { "value": "red", "label": { "en": "Red", "fr": "Rouge" } },
+            { "value": "orange", "label": { "en": "Orange", "fr": "Orange" } },
+            { "value": "yellow", "label": { "en": "Yellow", "fr": "Jaune" } },
+            { "value": "green", "label": { "en": "Green", "fr": "Vert" } },
+            { "value": "cyan", "label": { "en": "Cyan", "fr": "Cyan" } },
+            { "value": "blue", "label": { "en": "Blue", "fr": "Bleu" } },
+            { "value": "purple", "label": { "en": "Purple", "fr": "Violet" } },
+            { "value": "pink", "label": { "en": "Pink", "fr": "Rose" } }
+          ]
+        },
+        {
+          "key": "scene",
+          "type": "select",
+          "label": { "en": "Scene button", "fr": "Bouton scène" },
+          "default": "sunset",
+          "options": [
+            { "value": "sunrise", "label": { "en": "Sunrise", "fr": "Lever de soleil" } },
+            { "value": "sunset", "label": { "en": "Sunset", "fr": "Coucher de soleil" } },
+            { "value": "movie", "label": { "en": "Movie", "fr": "Cinéma" } },
+            { "value": "dating", "label": { "en": "Dating", "fr": "Rendez-vous" } },
+            { "value": "romantic", "label": { "en": "Romantic", "fr": "Romantique" } },
+            { "value": "twinkle", "label": { "en": "Twinkle", "fr": "Scintillement" } },
+            { "value": "candlelight", "label": { "en": "Candlelight", "fr": "Bougie" } },
+            { "value": "breathe", "label": { "en": "Breathe", "fr": "Respiration" } },
+            { "value": "snowflake", "label": { "en": "Snowflake", "fr": "Flocon de neige" } },
+            { "value": "energetic", "label": { "en": "Energetic", "fr": "Énergique" } },
+            { "value": "crossing", "label": { "en": "Crossing", "fr": "Croisement" } }
+          ]
+        },
+        {
+          "key": "scene_2",
+          "type": "select",
+          "label": { "en": "Second scene button", "fr": "Second bouton scène" },
+          "description": {
+            "en": "Shown when the light has room for it (no white tones).",
+            "fr": "Affiché quand la lampe a la place (sans blancs)."
+          },
+          "default": "candlelight",
+          "options": [
+            { "value": "sunrise", "label": { "en": "Sunrise", "fr": "Lever de soleil" } },
+            { "value": "sunset", "label": { "en": "Sunset", "fr": "Coucher de soleil" } },
+            { "value": "movie", "label": { "en": "Movie", "fr": "Cinéma" } },
+            { "value": "dating", "label": { "en": "Dating", "fr": "Rendez-vous" } },
+            { "value": "romantic", "label": { "en": "Romantic", "fr": "Romantique" } },
+            { "value": "twinkle", "label": { "en": "Twinkle", "fr": "Scintillement" } },
+            { "value": "candlelight", "label": { "en": "Candlelight", "fr": "Bougie" } },
+            { "value": "breathe", "label": { "en": "Breathe", "fr": "Respiration" } },
+            { "value": "snowflake", "label": { "en": "Snowflake", "fr": "Flocon de neige" } },
+            { "value": "energetic", "label": { "en": "Energetic", "fr": "Énergique" } },
+            { "value": "crossing", "label": { "en": "Crossing", "fr": "Croisement" } }
+          ]
         }
       ]
     }
