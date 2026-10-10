@@ -26,8 +26,8 @@ plugs, thermometers, humidifiers...).
 
 On top of the device features:
 
-- a **Govee light presets** dashboard widget: warm white, daylight, a short
-  list of colors and the Govee built-in scenes, one tap each;
+- a **Govee light presets** dashboard widget: warm white, daylight, your
+  favorite color and Govee built-in scenes, one tap each;
 - a **Start a Govee scene** scene action: sunrise, sunset, movie,
   candlelight, romantic, twinkle... on any light that supports Govee scenes;
 - a badge on each device telling whether Gladys reaches it locally or
@@ -142,14 +142,17 @@ Gladys **Control a device** action on the light's features.
 
 Add the **Govee light presets** widget to a dashboard and pick a light in its
 settings. It shows the light's brightness and current mode, and up to four
-buttons, depending on what the model can do:
+buttons, depending on what the model can do. Each button acts in one tap:
 
 - **Warm white** (2700 K) and **Daylight** (6500 K), adjusted to the model's
   range;
-- **Color**: pick one of eight named colors;
-- **Scene**: pick one of the Govee built-in scenes.
+- your **color** (blue by default), chosen among eight named colors in the
+  widget settings;
+- your **scene** (Sunset by default) among the Govee built-in scenes, and, on
+  lights without white tones, a **second scene** (Candlelight by default).
 
-The active preset is marked with a check icon.
+Change the color and the scenes in the widget settings. The active preset is
+marked with a check icon.
 
 ## How it works
 

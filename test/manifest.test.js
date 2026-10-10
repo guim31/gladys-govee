@@ -11,7 +11,8 @@ import { SCENE_ACTIONS } from '../src/scenes.js';
 import { WIDGETS } from '../src/widgets.js';
 import { DEFAULT_CONFIG } from '../src/config.js';
 import { REPLY_PORT } from '../src/lan/protocol.js';
-import { SCENES } from '../src/presets.js';
+import { COLORS, SCENES } from '../src/presets.js';
+import { SETTING_DEFAULTS } from '../src/widgets.js';
 import { createWorld } from './helpers/world.js';
 
 const manifest = JSON.parse(
@@ -82,6 +83,18 @@ test('the scene action offers exactly the scenes the code can send', () => {
     scene.options,
     SCENES.map(({ value, label }) => ({ value, label })),
   );
+});
+
+test('the presets widget settings offer what the code knows, with its defaults', () => {
+  const settings = manifest.widgets.find((w) => w.key === 'light_presets').settings;
+  const field = (key) => settings.find((f) => f.key === key);
+  const options = (list) => list.map(({ value, label }) => ({ value, label }));
+  assert.deepEqual(field('color').options, options(COLORS));
+  assert.deepEqual(field('scene').options, options(SCENES));
+  assert.deepEqual(field('scene_2').options, options(SCENES));
+  for (const [key, value] of Object.entries(SETTING_DEFAULTS)) {
+    assert.equal(field(key).default, value, `widget setting "${key}" default`);
+  }
 });
 
 test('the network capture is the Govee answer port, declared for the core', () => {

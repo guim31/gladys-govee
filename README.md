@@ -25,8 +25,8 @@ linked from the Configuration screen in Gladys).
   that stop answering locally, shown as a degraded badge. The integration
   counts its calls and stays within Govee's 10,000 requests a day.
 - **Govee built-in scenes** (sunrise, sunset, candlelight, movie...) from a
-  scene action and a **light presets** dashboard widget (white tones, named
-  colors, scenes), which the standard light box cannot offer.
+  scene action and a **light presets** dashboard widget (white tones, a chosen
+  color, chosen scenes, one tap each), which the standard light box cannot offer.
 - **Search and diagnose** action, **Identify** action (the device blinks).
 - Temperatures are published in the sensor's own unit and shown in each user's
   unit (°F or °C) by Gladys.

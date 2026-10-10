@@ -27,7 +27,7 @@ locale ne couvre pas (prises, thermomètres, humidificateurs…).
 En plus des fonctionnalités des appareils :
 
 - un widget de tableau de bord **Préréglages Govee** : blanc chaud, lumière du
-  jour, une courte liste de couleurs et les scènes intégrées Govee, en un geste
+  jour, votre couleur préférée et des scènes intégrées Govee, en un geste
   chacun ;
 - une action de scène **Lancer une scène Govee** : lever de soleil, coucher de
   soleil, cinéma, bougie, romantique, scintillement… sur toute lampe qui
@@ -153,14 +153,19 @@ fonctionnalités de la lampe.
 
 Ajoutez le widget **Préréglages Govee** à un tableau de bord et choisissez une
 lampe dans ses réglages. Il affiche la luminosité et le mode en cours de la
-lampe, et jusqu'à quatre boutons, selon ce que permet le modèle :
+lampe, et jusqu'à quatre boutons, selon ce que permet le modèle. Chaque bouton
+agit en un geste :
 
 - **Blanc chaud** (2700 K) et **Lumière du jour** (6500 K), ajustés à la plage
   du modèle ;
-- **Couleur** : choisissez parmi huit couleurs nommées ;
-- **Scène** : choisissez une des scènes intégrées Govee.
+- votre **couleur** (bleu par défaut), choisie parmi huit couleurs nommées
+  dans les réglages du widget ;
+- votre **scène** (Coucher de soleil par défaut) parmi les scènes intégrées
+  Govee et, sur les lampes sans blancs, une **seconde scène** (Bougie par
+  défaut).
 
-Le préréglage actif est marqué d'une coche.
+Changez la couleur et les scènes dans les réglages du widget. Le préréglage
+actif est marqué d'une coche.
 
 ## Comment ça marche
 

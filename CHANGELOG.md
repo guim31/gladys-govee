@@ -10,6 +10,14 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Fixed
+
+- "Govee light presets" widget: the Color and Scene buttons did nothing on the
+  published Gladys versions (they opened a form, which no Gladys release
+  supports yet). Each button now acts in one tap, with the color and the
+  scenes chosen in the widget settings, and a second scene button on lights
+  without white tones.
+
 ## [1.0.1] - 2026-10-09
 
 ### Added

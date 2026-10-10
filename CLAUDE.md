@@ -171,6 +171,16 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
 - **Les clés de widgets, de déclencheurs et d'actions sont figées une fois publiées.**
 - `gladys_version` `>=5.1.0` dès qu'il y a widgets, déclencheurs ou actions de scène.
 
+**Cibler la dernière version publiée du cœur**
+
+- La spec de `master` (`docs/specs/external-integrations/`) décrit des fonctions **pas encore
+  publiées** : vérifier chaque fonction utilisée par `git tag --contains <commit>` dans le dépôt
+  Gladys, et valider contre le code du dernier tag (pas `master`).
+- Exemple payé : les formulaires derrière un bouton de widget (`action.fields`,
+  GladysAssistant/Gladys#3168, commit 3feb2cf8) ne sont dans aucune version (5.1.4 n'en a pas) :
+  le bouton s'affiche et n'envoie rien. Boutons directs avec `params`, choix dans les `settings`
+  du widget.
+
 **Découverte réseau médiée (vérifié dans le code du cœur, 5.1.4)**
 
 - `udp-active-broadcast` écoute les réponses sur le **port éphémère** d'où le cœur a émis : un
@@ -193,9 +203,8 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
 - Ni `publishChangedStates`, ni `@gladysassistant/integration-sdk/testing` (`createFakeGladys`),
   ni `DEVICE_POLL_FREQUENCIES` : le README de `master` les documente, le paquet publié ne les a
   pas. Dédoublonner les états soi-même, garder un double de test maison.
-- `validateWidgetContent` **ignore les `fields`** d'une action de widget ; le cœur les valide
-  (`validateConfigField`) et jette le bouton si la déclaration est invalide. Les champs d'action de
-  widget exigent Gladys ≥ 5.1.0.
+- `validateWidgetContent` **ignore les `fields`** d'une action de widget : il ne signale pas
+  qu'aucune version publiée du cœur ne les gère (voir plus haut).
 - `light/temperature` avec l'unité `kelvin` et des bornes en kelvins : le front l'affiche comme
   une vraie échelle de température (sinon il devine mired ou ratio d'après les bornes).
 

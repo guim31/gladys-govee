@@ -10,6 +10,11 @@
 // brightness, current mode) and up to four buttons. The current preset is
 // marked by its icon (`check-circle`), never by the button style: `primary` is
 // invisible in dark mode.
+//
+// Every button acts in one tap: the colour and the scenes it sends are chosen
+// in the widget settings. A button that opens a form (action `fields`) needs
+// GladysAssistant/Gladys#3168, in no published Gladys yet (5.1.4 renders the
+// button and sends nothing): that variant stays behind WIDGET_ACTION_FORMS.
 // -----------------------------------------------------------------------------
 
 import { DEVICE_TYPE, FEATURE_KEYS, featureSpecs, hasLan, lanCapabilities } from './features.js';
@@ -17,6 +22,15 @@ import { PRESETS_WIDGET } from './hub.js';
 import { COLORS, SCENES, WHITES, sceneLabel } from './presets.js';
 
 const ACTIVE_ICON = 'check-circle';
+
+// Turn on once a published Gladys renders widget action forms (#3168).
+export const WIDGET_ACTION_FORMS = false;
+
+// Widget settings defaults, mirrored in the manifest (test/manifest.test.js).
+export const SETTING_DEFAULTS = { color: 'blue', scene: 'sunset', scene_2: 'candlelight' };
+
+const colorOf = (value) => COLORS.find((c) => c.value === value);
+const sceneOf = (value) => SCENES.find((s) => s.value === value);
 
 const TEXT = {
   pick: {
@@ -59,7 +73,7 @@ function currentMode(hub, entry, language) {
 
 const clampKelvin = (spec, kelvin) => Math.max(spec.min, Math.min(spec.max, kelvin));
 
-async function get(hub, { settings, language }) {
+async function get(hub, { settings = {}, language }, { forms = WIDGET_ACTION_FORMS } = {}) {
   const entry = settings?.device ? hub.entryByExternalId(settings.device) : null;
   if (!entry) {
     return {
@@ -116,50 +130,90 @@ async function get(hub, { settings, language }) {
       });
     }
   }
-  if (has(FEATURE_KEYS.COLOR)) {
-    buttons.push({
-      type: 'button',
-      label: t(TEXT.color, language),
-      icon: on && entry.mode === 'color' ? ACTIVE_ICON : 'droplet',
-      action: {
-        key: 'color',
-        fields: [
-          {
-            key: 'color',
-            type: 'select',
-            required: true,
-            default: COLORS[0].value,
-            label: TEXT.color,
-            options: COLORS.map(({ value, label }) => ({ value, label })),
-          },
-        ],
-      },
-    });
-  }
-  if (hasLan(entry) && lanCapabilities(entry).scenes) {
-    buttons.push({
-      type: 'button',
-      label: t(TEXT.scene, language),
-      icon: on && entry.mode === 'scene' ? ACTIVE_ICON : 'film',
-      action: {
-        key: 'scene',
-        fields: [
-          {
-            key: 'scene',
-            type: 'select',
-            required: true,
-            default: entry.scene ?? SCENES[0].value,
-            label: TEXT.scene,
-            options: SCENES.map(({ value, label }) => ({ value, label })),
-          },
-        ],
-      },
-    });
+  const color = has(FEATURE_KEYS.COLOR);
+  const scenes = hasLan(entry) && lanCapabilities(entry).scenes;
+  if (forms) {
+    if (color) {
+      buttons.push(colorFormButton(entry, on, language));
+    }
+    if (scenes) {
+      buttons.push(sceneFormButton(entry, on, language));
+    }
+  } else {
+    if (color) {
+      const preset = colorOf(settings.color) ?? colorOf(SETTING_DEFAULTS.color);
+      const active = on && entry.mode === 'color' && values[FEATURE_KEYS.COLOR] === preset.rgb;
+      buttons.push({
+        type: 'button',
+        label: t(preset.label, language),
+        icon: active ? ACTIVE_ICON : 'droplet',
+        action: { key: 'color', params: { color: preset.value } },
+      });
+    }
+    if (scenes) {
+      for (const key of ['scene', 'scene_2']) {
+        const scene = sceneOf(settings[key]) ?? sceneOf(SETTING_DEFAULTS[key]);
+        // The same scene picked twice is one button.
+        if (buttons.some((b) => b.action.params?.scene === scene.value)) {
+          continue;
+        }
+        buttons.push({
+          type: 'button',
+          label: t(scene.label, language),
+          icon: on && entry.mode === 'scene' && entry.scene === scene.value ? ACTIVE_ICON : 'film',
+          action: { key, params: { scene: scene.value } },
+        });
+      }
+    }
   }
   return { ttl_seconds: 60, components: [...components, ...buttons.slice(0, 4)] };
 }
 
-async function action(hub, { actionKey, settings, values = {}, language = 'en' }) {
+// One button, one form: the colour list (needs Gladys#3168, see the header).
+function colorFormButton(entry, on, language) {
+  return {
+    type: 'button',
+    label: t(TEXT.color, language),
+    icon: on && entry.mode === 'color' ? ACTIVE_ICON : 'droplet',
+    action: {
+      key: 'color',
+      fields: [
+        {
+          key: 'color',
+          type: 'select',
+          required: true,
+          default: COLORS[0].value,
+          label: TEXT.color,
+          options: COLORS.map(({ value, label }) => ({ value, label })),
+        },
+      ],
+    },
+  };
+}
+
+function sceneFormButton(entry, on, language) {
+  return {
+    type: 'button',
+    label: t(TEXT.scene, language),
+    icon: on && entry.mode === 'scene' ? ACTIVE_ICON : 'film',
+    action: {
+      key: 'scene',
+      fields: [
+        {
+          key: 'scene',
+          type: 'select',
+          required: true,
+          default: entry.scene ?? SCENES[0].value,
+          label: TEXT.scene,
+          options: SCENES.map(({ value, label }) => ({ value, label })),
+        },
+      ],
+    },
+  };
+}
+
+// `params` come from the buttons above; `values` from a form (#3168).
+async function action(hub, { actionKey, params = {}, settings, values = {}, language = 'en' }) {
   const externalId = settings?.device;
   const entry = externalId ? hub.entryByExternalId(externalId) : null;
   if (!entry) {
@@ -172,10 +226,11 @@ async function action(hub, { actionKey, settings, values = {}, language = 'en' }
     }
     await hub.setFeature(externalId, spec.key, clampKelvin(spec, WHITES[actionKey].kelvin));
   } else if (actionKey === 'color') {
-    const color = COLORS.find((c) => c.value === values.color) ?? COLORS[0];
+    const color = colorOf(params.color ?? values.color) ?? colorOf(SETTING_DEFAULTS.color);
     await hub.setFeature(externalId, FEATURE_KEYS.COLOR, color.rgb);
-  } else if (actionKey === 'scene') {
-    await hub.applyScene(externalId, values.scene ?? SCENES[0].value);
+  } else if (actionKey === 'scene' || actionKey === 'scene_2') {
+    const scene = sceneOf(params.scene ?? values.scene) ?? sceneOf(SETTING_DEFAULTS[actionKey]);
+    await hub.applyScene(externalId, scene.value);
   } else {
     throw new Error(`Unknown action ${actionKey}`);
   }
