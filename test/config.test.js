@@ -40,7 +40,7 @@ test('form values arrive as strings and are checked against the choices', () => 
   assert.equal(config.apiKey, 'key-with-spaces');
   assert.equal(config.preferLocal, false);
 
-  const odd = normalizeConfig({ lan_poll_interval: '7', cloud_poll_interval: '1', language: 'de' });
+  const odd = normalizeConfig({ lan_poll_interval: '7', cloud_poll_interval: '1', language: 'it' });
   assert.equal(odd.lanPollSeconds, 30);
   assert.equal(odd.cloudPollMinutes, 10);
   assert.equal(odd.language, 'en');

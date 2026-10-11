@@ -19,7 +19,7 @@ const table = JSON.parse(
 );
 
 // LAN only, LAN + cloud (shared device, cloud-only plug, thermometer,
-// humidifier, light), in both feature-name languages.
+// humidifier, light), in every feature-name language.
 const scenarios = [
   { label: 'LAN only', config: { lan_addresses: addressesOf() } },
   {
@@ -29,6 +29,14 @@ const scenarios = [
   {
     label: 'LAN + cloud, French names',
     config: { lan_addresses: addressesOf(), api_key: 'test-key', language: 'fr' },
+  },
+  {
+    label: 'LAN + cloud, German names',
+    config: { lan_addresses: addressesOf(), api_key: 'test-key', language: 'de' },
+  },
+  {
+    label: 'LAN + cloud, Spanish names',
+    config: { lan_addresses: addressesOf(), api_key: 'test-key', language: 'es' },
   },
 ];
 

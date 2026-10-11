@@ -10,6 +10,13 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Added
+
+- German and Spanish: the configuration screen, the actions, the scene action,
+  the "Govee light presets" widget and the messages of the integration follow
+  a Gladys interface in German or Spanish. The feature names can now also be
+  written in German or Spanish (setting "Language of the feature names").
+
 ## [1.0.2] - 2026-10-10
 
 ### Fixed

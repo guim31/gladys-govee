@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { validateWidgetContent } from '@gladysassistant/integration-sdk';
-import { SETTING_DEFAULTS, WIDGETS, WIDGET_ACTION_FORMS } from '../src/widgets.js';
+import { SETTING_DEFAULTS, TEXT, WIDGETS, WIDGET_ACTION_FORMS } from '../src/widgets.js';
 import { LAN_FIXTURES, addressesOf, createWorld, deviceId } from './helpers/world.js';
 
 const BULB = LAN_FIXTURES[0]; // H6008: colour, white tones, scenes
@@ -41,7 +41,7 @@ test('every content the widget can produce renders exactly as sent', async () =>
   try {
     const contents = [await get(gladys), await get(gladys, 'ext:test-integration:device:00')];
     for (const device of gladys.discoveredDevices) {
-      for (const language of ['en', 'fr']) {
+      for (const language of ['en', 'fr', 'de', 'es']) {
         contents.push(await get(gladys, device.external_id, language));
       }
     }
@@ -127,7 +127,8 @@ test('presets drive the light in one tap, the active one marked by its icon', as
     assert.equal((await icons()).color, 'droplet');
 
     const result = await press(gladys, bulbId, 'warm');
-    assert.deepEqual(result, { message: { en: 'Sent to the light.', fr: 'Envoyé à la lampe.' } });
+    assert.deepEqual(result, { message: TEXT.done });
+    assert.equal(result.message.en, 'Sent to the light.');
     assert.equal(bulb.status.colorTemInKelvin, 2700);
     assert.equal((await icons()).warm, 'check-circle');
 
