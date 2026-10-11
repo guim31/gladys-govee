@@ -39,7 +39,7 @@ const CLOUD = {
 
 // Feature names are frozen when the user creates the device: written in the
 // language chosen in the configuration at that moment.
-const NAMES = {
+export const NAMES = {
   en: {
     power: 'Power',
     light: 'Light',
@@ -58,16 +58,39 @@ const NAMES = {
     temperature: 'Température',
     humidity: 'Humidité',
   },
+  de: {
+    power: 'Ein/Aus',
+    light: 'Licht',
+    brightness: 'Helligkeit',
+    color: 'Farbe',
+    'color-temperature': 'Farbtemperatur',
+    temperature: 'Temperatur',
+    humidity: 'Luftfeuchtigkeit',
+  },
+  es: {
+    power: 'Encendido',
+    light: 'Luz',
+    brightness: 'Brillo',
+    color: 'Color',
+    'color-temperature': 'Temperatura de color',
+    temperature: 'Temperatura',
+    humidity: 'Humedad',
+  },
 };
 
-const TOGGLE_NAMES = {
-  gradientToggle: { en: 'Gradient', fr: 'Dégradé' },
-  nightlightToggle: { en: 'Night light', fr: 'Veilleuse' },
-  oscillationToggle: { en: 'Oscillation', fr: 'Oscillation' },
-  warmMistToggle: { en: 'Warm mist', fr: 'Brume chaude' },
-  airDeflectorToggle: { en: 'Air deflector', fr: 'Déflecteur' },
-  thermostatToggle: { en: 'Thermostat', fr: 'Thermostat' },
-  dreamViewToggle: { en: 'DreamView', fr: 'DreamView' },
+export const TOGGLE_NAMES = {
+  gradientToggle: { en: 'Gradient', fr: 'Dégradé', de: 'Farbverlauf', es: 'Degradado' },
+  nightlightToggle: { en: 'Night light', fr: 'Veilleuse', de: 'Nachtlicht', es: 'Luz nocturna' },
+  oscillationToggle: { en: 'Oscillation', fr: 'Oscillation', de: 'Oszillation', es: 'Oscilación' },
+  warmMistToggle: { en: 'Warm mist', fr: 'Brume chaude', de: 'Warmer Nebel', es: 'Vapor caliente' },
+  airDeflectorToggle: {
+    en: 'Air deflector',
+    fr: 'Déflecteur',
+    de: 'Luftleitblech',
+    es: 'Deflector de aire',
+  },
+  thermostatToggle: { en: 'Thermostat', fr: 'Thermostat', de: 'Thermostat', es: 'Termostato' },
+  dreamViewToggle: { en: 'DreamView', fr: 'DreamView', de: 'DreamView', es: 'DreamView' },
 };
 
 const findCapability = (entry, type, instance) =>

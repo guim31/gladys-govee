@@ -77,7 +77,7 @@ In the **Configuration** tab of the integration:
   to see what you change from the Govee app or a remote (every 30 seconds by
   default). Commands sent from Gladys are confirmed right away, whatever this
   setting.
-- **Language of the feature names**: English or French names for the features
+- **Language of the feature names**: English, French, German or Spanish names for the features
   of the devices you add next (Light, Brightness...). Device names come from
   the Govee app when the cloud API is set, otherwise they read `Govee H6008
 A1B2` (model and end of the device id): rename them in Gladys as you like.

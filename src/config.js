@@ -8,7 +8,7 @@ import { parseAddresses } from './lan/addresses.js';
 
 export const LAN_POLL_INTERVALS = [10, 30, 60, 120, 300]; // seconds
 export const CLOUD_POLL_INTERVALS = [5, 10, 15, 30, 60]; // minutes
-export const LANGUAGES = ['en', 'fr'];
+export const LANGUAGES = ['en', 'fr', 'de', 'es'];
 
 export const DEFAULT_CONFIG = {
   lan_addresses: '',

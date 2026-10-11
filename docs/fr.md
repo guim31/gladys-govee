@@ -82,7 +82,7 @@ Dans l'onglet **Configuration** de l'intégration :
   interroge les lampes, pour voir ce que vous changez depuis l'application
   Govee ou une télécommande (toutes les 30 secondes par défaut). Les commandes
   envoyées depuis Gladys sont confirmées aussitôt, quel que soit ce réglage.
-- **Langue des noms de fonctionnalités** : noms anglais ou français des
+- **Langue des noms de fonctionnalités** : noms anglais, français, allemands ou espagnols des
   fonctionnalités des appareils que vous ajouterez ensuite (Éclairage,
   Luminosité…). Le nom des appareils vient de l'application Govee quand l'API
   cloud est configurée, sinon il s'écrit `Govee H6008 A1B2` (modèle et fin de

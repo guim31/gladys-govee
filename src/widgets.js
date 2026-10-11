@@ -32,24 +32,33 @@ export const SETTING_DEFAULTS = { color: 'blue', scene: 'sunset', scene_2: 'cand
 const colorOf = (value) => COLORS.find((c) => c.value === value);
 const sceneOf = (value) => SCENES.find((s) => s.value === value);
 
-const TEXT = {
+export const TEXT = {
   pick: {
     en: 'Choose a Govee light in the settings of this widget.',
     fr: 'Choisissez une lampe Govee dans les réglages de ce widget.',
+    de: 'Wähle eine Govee-Lampe in den Einstellungen dieses Widgets.',
+    es: 'Elija una luz Govee en los ajustes de este widget.',
   },
   unknown: {
     en: 'This Govee light is not known yet: run a scan in the integration.',
     fr: 'Cette lampe Govee est inconnue : lancez une recherche dans l’intégration.',
+    de: 'Diese Govee-Lampe ist noch unbekannt: Starte eine Suche in der Integration.',
+    es: 'Esta luz Govee aún no se conoce: inicie una búsqueda en la integración.',
   },
-  brightness: { en: 'Brightness', fr: 'Luminosité' },
-  mode: { en: 'Mode', fr: 'Mode' },
-  off: { en: 'Off', fr: 'Éteinte' },
-  color: { en: 'Color', fr: 'Couleur' },
-  scene: { en: 'Scene', fr: 'Scène' },
-  local: { en: 'local network', fr: 'réseau local' },
-  cloud: { en: 'cloud', fr: 'cloud' },
-  unreachable: { en: 'unreachable', fr: 'injoignable' },
-  done: { en: 'Sent to the light.', fr: 'Envoyé à la lampe.' },
+  brightness: { en: 'Brightness', fr: 'Luminosité', de: 'Helligkeit', es: 'Brillo' },
+  mode: { en: 'Mode', fr: 'Mode', de: 'Modus', es: 'Modo' },
+  off: { en: 'Off', fr: 'Éteinte', de: 'Aus', es: 'Apagada' },
+  color: { en: 'Color', fr: 'Couleur', de: 'Farbe', es: 'Color' },
+  scene: { en: 'Scene', fr: 'Scène', de: 'Szene', es: 'Escena' },
+  local: { en: 'local network', fr: 'réseau local', de: 'lokales Netzwerk', es: 'red local' },
+  cloud: { en: 'cloud', fr: 'cloud', de: 'Cloud', es: 'nube' },
+  unreachable: { en: 'unreachable', fr: 'injoignable', de: 'nicht erreichbar', es: 'inaccesible' },
+  done: {
+    en: 'Sent to the light.',
+    fr: 'Envoyé à la lampe.',
+    de: 'An die Lampe gesendet.',
+    es: 'Enviado a la luz.',
+  },
 };
 
 const t = (text, language) => text[language] ?? text.en;

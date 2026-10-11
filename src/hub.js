@@ -54,9 +54,25 @@ const CLOUD_TICK_MS = 60 * 1000;
 const REFRESH_AFTER_COMMAND_MS = 1000;
 const MAX_TRANSPORTS_PER_REQUEST = 100;
 
-const NOT_ON_LAN = {
-  en: 'Local control preferred, but the light does not answer on the LAN: using the cloud.',
-  fr: 'Contrôle local préféré, mais la lampe ne répond pas sur le réseau local : passage par le cloud.',
+export const MESSAGES = {
+  notOnLan: {
+    en: 'Local control preferred, but the light does not answer on the LAN: using the cloud.',
+    fr: 'Contrôle local préféré, mais la lampe ne répond pas sur le réseau local : passage par le cloud.',
+    de: 'Lokale Steuerung bevorzugt, aber die Lampe antwortet nicht im lokalen Netzwerk: Die Cloud wird verwendet.',
+    es: 'Control local preferido, pero la luz no responde en la red local: se usa la nube.',
+  },
+  apiKeyRefused: {
+    en: 'Govee API key refused: check it in the configuration.',
+    fr: 'Clé d’API Govee refusée : vérifiez-la dans la configuration.',
+    de: 'Govee-API-Schlüssel abgelehnt: Prüfe ihn in der Konfiguration.',
+    es: 'Clave de API de Govee rechazada: compruébela en la configuración.',
+  },
+  noDevice: {
+    en: 'No Govee device found yet: enter the IP addresses of your lights (LAN Control on).',
+    fr: 'Aucun appareil Govee trouvé : saisissez les adresses IP de vos lampes (Contrôle LAN activé).',
+    de: 'Noch kein Govee-Gerät gefunden: Gib die IP-Adressen deiner Lampen ein (LAN Control aktiviert).',
+    es: 'Aún no se ha encontrado ningún dispositivo Govee: introduzca las direcciones IP de sus luces (LAN Control activado).',
+  },
 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -285,7 +301,7 @@ export class GoveeHub {
     }
     if (cloudOk) {
       return lan && this.config.preferLocal
-        ? { use: 'cloud', transport: 'cloud', degraded: true, message: NOT_ON_LAN }
+        ? { use: 'cloud', transport: 'cloud', degraded: true, message: MESSAGES.notOnLan }
         : { use: 'cloud', transport: 'cloud' };
     }
     if (lan && entry.ip) {
@@ -403,17 +419,11 @@ export class GoveeHub {
 
   async reportConnection(lanFound) {
     if (this.cloudError?.status === 401 || this.cloudError?.status === 403) {
-      await this.gladys.setConnectionStatus(false, {
-        en: 'Govee API key refused: check it in the configuration.',
-        fr: 'Clé d’API Govee refusée : vérifiez-la dans la configuration.',
-      });
+      await this.gladys.setConnectionStatus(false, MESSAGES.apiKeyRefused);
       return;
     }
     if (this.entries.size === 0 && lanFound === 0) {
-      await this.gladys.setConnectionStatus(false, {
-        en: 'No Govee device found yet: enter the IP addresses of your lights (LAN Control on).',
-        fr: 'Aucun appareil Govee trouvé : saisissez les adresses IP de vos lampes (Contrôle LAN activé).',
-      });
+      await this.gladys.setConnectionStatus(false, MESSAGES.noDevice);
       return;
     }
     await this.gladys.setConnectionStatus(true);

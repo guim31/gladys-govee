@@ -4,7 +4,9 @@
   "name": "Govee",
   "description": {
     "en": "Govee bulbs, light strips and lamps over the local network (LAN API), cloud API optional.",
-    "fr": "Ampoules, rubans LED et lampes Govee en réseau local (API LAN), API cloud en option."
+    "fr": "Ampoules, rubans LED et lampes Govee en réseau local (API LAN), API cloud en option.",
+    "de": "Govee-Lampen, LED-Streifen und Leuchten im lokalen Netzwerk (LAN-API), Cloud-API optional.",
+    "es": "Bombillas, tiras LED y lámparas Govee en la red local (API LAN), API en la nube opcional."
   },
   "version": "1.0.2",
   "docker_image": "ghcr.io/guim31/gladys-govee:1.0.2",
@@ -12,34 +14,60 @@
   "cover_image": "https://raw.githubusercontent.com/guim31/gladys-govee/main/cover.png",
   "categories": ["lighting"],
   "transports": ["local", "cloud"],
-  "network_discovery": [{ "type": "udp-broadcast", "ports": [4002] }],
+  "network_discovery": [
+    {
+      "type": "udp-broadcast",
+      "ports": [4002]
+    }
+  ],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Local control (LAN)", "fr": "Contrôle local (LAN)" },
+      "label": {
+        "en": "Local control (LAN)",
+        "fr": "Contrôle local (LAN)",
+        "de": "Lokale Steuerung (LAN)",
+        "es": "Control local (LAN)"
+      },
       "description": {
         "en": "In the Govee Home app, open each light, tap the gear icon and turn on \"LAN Control\". Then enter the IP addresses of your lights below (find them in your router), or a range to scan.",
-        "fr": "Dans l'application Govee Home, ouvrez chaque lampe, touchez la roue dentée et activez « LAN Control ». Saisissez ensuite les adresses IP de vos lampes ci-dessous (votre box les affiche), ou une plage à parcourir."
+        "fr": "Dans l'application Govee Home, ouvrez chaque lampe, touchez la roue dentée et activez « LAN Control ». Saisissez ensuite les adresses IP de vos lampes ci-dessous (votre box les affiche), ou une plage à parcourir.",
+        "de": "Öffne in der Govee-Home-App jede Lampe, tippe auf das Zahnrad und aktiviere „LAN Control“. Gib dann unten die IP-Adressen deiner Lampen ein (du findest sie in deinem Router) oder einen zu durchsuchenden Bereich.",
+        "es": "En la aplicación Govee Home, abra cada luz, toque el icono del engranaje y active «LAN Control». Después introduzca abajo las direcciones IP de sus luces (las encontrará en su router), o un rango que explorar."
       },
       "links": [
         {
           "url": "https://github.com/guim31/gladys-govee/blob/main/docs/en.md",
-          "label": { "en": "Setup guide", "fr": "Guide d'installation" }
+          "label": {
+            "en": "Setup guide",
+            "fr": "Guide d'installation",
+            "de": "Installationsanleitung",
+            "es": "Guía de instalación"
+          }
         }
       ]
     },
     {
       "key": "lan_addresses",
       "type": "string",
-      "label": { "en": "Light IP addresses or ranges", "fr": "Adresses IP ou plages des lampes" },
+      "label": {
+        "en": "Light IP addresses or ranges",
+        "fr": "Adresses IP ou plages des lampes",
+        "de": "IP-Adressen oder Bereiche der Lampen",
+        "es": "Direcciones IP o rangos de las luces"
+      },
       "description": {
         "en": "Separated by commas. One address (192.168.1.42), a range (192.168.1.20-60) or a whole network (192.168.1.0/24), 1024 addresses at most.",
-        "fr": "Séparées par des virgules. Une adresse (192.168.1.42), une plage (192.168.1.20-60) ou un réseau entier (192.168.1.0/24), 1024 adresses au plus."
+        "fr": "Séparées par des virgules. Une adresse (192.168.1.42), une plage (192.168.1.20-60) ou un réseau entier (192.168.1.0/24), 1024 adresses au plus.",
+        "de": "Durch Kommas getrennt. Eine Adresse (192.168.1.42), ein Bereich (192.168.1.20-60) oder ein ganzes Netzwerk (192.168.1.0/24), höchstens 1024 Adressen.",
+        "es": "Separadas por comas. Una dirección (192.168.1.42), un rango (192.168.1.20-60) o una red completa (192.168.1.0/24), 1024 direcciones como máximo."
       },
       "placeholder": {
         "en": "e.g. 192.168.1.42, 192.168.1.0/24",
-        "fr": "ex. 192.168.1.42, 192.168.1.0/24"
+        "fr": "ex. 192.168.1.42, 192.168.1.0/24",
+        "de": "z. B. 192.168.1.42, 192.168.1.0/24",
+        "es": "p. ej. 192.168.1.42, 192.168.1.0/24"
       },
       "required": false,
       "default": ""
@@ -47,19 +75,66 @@
     {
       "key": "lan_poll_interval",
       "type": "select",
-      "label": { "en": "Light state refresh", "fr": "Rafraîchissement de l'état des lampes" },
+      "label": {
+        "en": "Light state refresh",
+        "fr": "Rafraîchissement de l'état des lampes",
+        "de": "Aktualisierung des Lampenstatus",
+        "es": "Actualización del estado de las luces"
+      },
       "description": {
         "en": "How often the lights are asked for their state (changes made in the Govee app or with a remote). Gladys commands are confirmed right away.",
-        "fr": "Fréquence à laquelle les lampes sont interrogées (changements faits depuis l'application Govee ou une télécommande). Les commandes Gladys sont confirmées aussitôt."
+        "fr": "Fréquence à laquelle les lampes sont interrogées (changements faits depuis l'application Govee ou une télécommande). Les commandes Gladys sont confirmées aussitôt.",
+        "de": "Wie oft die Lampen nach ihrem Status gefragt werden (Änderungen in der Govee-App oder mit einer Fernbedienung). Befehle aus Gladys werden sofort bestätigt.",
+        "es": "Frecuencia con la que se consulta el estado de las luces (cambios hechos en la aplicación Govee o con un mando a distancia). Los comandos de Gladys se confirman de inmediato."
       },
       "required": false,
       "default": "30",
       "options": [
-        { "value": "10", "label": { "en": "Every 10 seconds", "fr": "Toutes les 10 secondes" } },
-        { "value": "30", "label": { "en": "Every 30 seconds", "fr": "Toutes les 30 secondes" } },
-        { "value": "60", "label": { "en": "Every minute", "fr": "Toutes les minutes" } },
-        { "value": "120", "label": { "en": "Every 2 minutes", "fr": "Toutes les 2 minutes" } },
-        { "value": "300", "label": { "en": "Every 5 minutes", "fr": "Toutes les 5 minutes" } }
+        {
+          "value": "10",
+          "label": {
+            "en": "Every 10 seconds",
+            "fr": "Toutes les 10 secondes",
+            "de": "Alle 10 Sekunden",
+            "es": "Cada 10 segundos"
+          }
+        },
+        {
+          "value": "30",
+          "label": {
+            "en": "Every 30 seconds",
+            "fr": "Toutes les 30 secondes",
+            "de": "Alle 30 Sekunden",
+            "es": "Cada 30 segundos"
+          }
+        },
+        {
+          "value": "60",
+          "label": {
+            "en": "Every minute",
+            "fr": "Toutes les minutes",
+            "de": "Jede Minute",
+            "es": "Cada minuto"
+          }
+        },
+        {
+          "value": "120",
+          "label": {
+            "en": "Every 2 minutes",
+            "fr": "Toutes les 2 minutes",
+            "de": "Alle 2 Minuten",
+            "es": "Cada 2 minutos"
+          }
+        },
+        {
+          "value": "300",
+          "label": {
+            "en": "Every 5 minutes",
+            "fr": "Toutes les 5 minutes",
+            "de": "Alle 5 Minuten",
+            "es": "Cada 5 minutos"
+          }
+        }
       ]
     },
     {
@@ -67,75 +142,192 @@
       "type": "select",
       "label": {
         "en": "Language of the feature names",
-        "fr": "Langue des noms de fonctionnalités"
+        "fr": "Langue des noms de fonctionnalités",
+        "de": "Sprache der Funktionsnamen",
+        "es": "Idioma de los nombres de las funciones"
       },
       "description": {
         "en": "Names given to the features of new devices (Light, Brightness...).",
-        "fr": "Noms donnés aux fonctionnalités des nouveaux appareils (Éclairage, Luminosité…)."
+        "fr": "Noms donnés aux fonctionnalités des nouveaux appareils (Éclairage, Luminosité…).",
+        "de": "Namen der Funktionen neuer Geräte (Licht, Helligkeit …).",
+        "es": "Nombres dados a las funciones de los nuevos dispositivos (Luz, Brillo...)."
       },
       "required": false,
       "default": "en",
       "options": [
-        { "value": "en", "label": { "en": "English", "fr": "Anglais" } },
-        { "value": "fr", "label": { "en": "French", "fr": "Français" } }
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
       ]
     },
     {
       "key": "cloud",
       "type": "section",
-      "label": { "en": "Govee cloud API (optional)", "fr": "API cloud Govee (facultative)" },
+      "label": {
+        "en": "Govee cloud API (optional)",
+        "fr": "API cloud Govee (facultative)",
+        "de": "Govee-Cloud-API (optional)",
+        "es": "API en la nube de Govee (opcional)"
+      },
       "description": {
         "en": "Without a key the integration stays 100% local. With one, Gladys also reaches the devices without LAN control (plugs, thermometers, humidifiers...) and falls back to the cloud when a light does not answer locally. Get a free key in the Govee Home app: Profile, Settings, Apply for API Key. Govee allows 10,000 requests a day.",
-        "fr": "Sans clé, l'intégration reste 100 % locale. Avec une clé, Gladys atteint aussi les appareils sans contrôle LAN (prises, thermomètres, humidificateurs…) et passe par le cloud quand une lampe ne répond pas en local. Clé gratuite dans l'application Govee Home : Profil, Réglages, Apply for API Key. Govee autorise 10 000 requêtes par jour."
+        "fr": "Sans clé, l'intégration reste 100 % locale. Avec une clé, Gladys atteint aussi les appareils sans contrôle LAN (prises, thermomètres, humidificateurs…) et passe par le cloud quand une lampe ne répond pas en local. Clé gratuite dans l'application Govee Home : Profil, Réglages, Apply for API Key. Govee autorise 10 000 requêtes par jour.",
+        "de": "Ohne Schlüssel bleibt die Integration zu 100 % lokal. Mit einem Schlüssel erreicht Gladys auch die Geräte ohne LAN-Steuerung (Steckdosen, Thermometer, Luftbefeuchter …) und weicht auf die Cloud aus, wenn eine Lampe lokal nicht antwortet. Einen kostenlosen Schlüssel bekommst du in der Govee-Home-App: Profil, Einstellungen, Apply for API Key. Govee erlaubt 10.000 Anfragen pro Tag.",
+        "es": "Sin clave, la integración sigue siendo 100 % local. Con una clave, Gladys también accede a los dispositivos sin control LAN (enchufes, termómetros, humidificadores...) y recurre a la nube cuando una luz no responde en local. Obtenga una clave gratuita en la aplicación Govee Home: Perfil, Ajustes, Apply for API Key. Govee permite 10.000 solicitudes al día."
       },
       "links": [
         {
           "url": "https://developer.govee.com/",
-          "label": { "en": "Govee developer platform", "fr": "Plateforme développeur Govee" }
+          "label": {
+            "en": "Govee developer platform",
+            "fr": "Plateforme développeur Govee",
+            "de": "Govee-Entwicklerplattform",
+            "es": "Plataforma para desarrolladores de Govee"
+          }
         }
       ]
     },
     {
       "key": "api_key",
       "type": "secret",
-      "label": { "en": "Govee API key", "fr": "Clé d'API Govee" },
+      "label": {
+        "en": "Govee API key",
+        "fr": "Clé d'API Govee",
+        "de": "Govee-API-Schlüssel",
+        "es": "Clave de API de Govee"
+      },
       "required": false
     },
     {
       "key": "cloud_poll_interval",
       "type": "select",
-      "label": { "en": "Cloud state refresh", "fr": "Rafraîchissement par le cloud" },
+      "label": {
+        "en": "Cloud state refresh",
+        "fr": "Rafraîchissement par le cloud",
+        "de": "Aktualisierung über die Cloud",
+        "es": "Actualización a través de la nube"
+      },
       "description": {
         "en": "For the devices reached through the cloud. Stretched automatically when needed to stay within the daily quota.",
-        "fr": "Pour les appareils joints par le cloud. Allongé automatiquement si besoin pour rester dans le quota quotidien."
+        "fr": "Pour les appareils joints par le cloud. Allongé automatiquement si besoin pour rester dans le quota quotidien.",
+        "de": "Für die über die Cloud erreichten Geräte. Wird bei Bedarf automatisch verlängert, um im Tageskontingent zu bleiben.",
+        "es": "Para los dispositivos accesibles a través de la nube. Se alarga automáticamente si es necesario para no superar la cuota diaria."
       },
       "required": false,
       "default": "10",
       "options": [
-        { "value": "5", "label": { "en": "Every 5 minutes", "fr": "Toutes les 5 minutes" } },
-        { "value": "10", "label": { "en": "Every 10 minutes", "fr": "Toutes les 10 minutes" } },
-        { "value": "15", "label": { "en": "Every 15 minutes", "fr": "Toutes les 15 minutes" } },
-        { "value": "30", "label": { "en": "Every 30 minutes", "fr": "Toutes les 30 minutes" } },
-        { "value": "60", "label": { "en": "Every hour", "fr": "Toutes les heures" } }
+        {
+          "value": "5",
+          "label": {
+            "en": "Every 5 minutes",
+            "fr": "Toutes les 5 minutes",
+            "de": "Alle 5 Minuten",
+            "es": "Cada 5 minutos"
+          }
+        },
+        {
+          "value": "10",
+          "label": {
+            "en": "Every 10 minutes",
+            "fr": "Toutes les 10 minutes",
+            "de": "Alle 10 Minuten",
+            "es": "Cada 10 minutos"
+          }
+        },
+        {
+          "value": "15",
+          "label": {
+            "en": "Every 15 minutes",
+            "fr": "Toutes les 15 minutes",
+            "de": "Alle 15 Minuten",
+            "es": "Cada 15 minutos"
+          }
+        },
+        {
+          "value": "30",
+          "label": {
+            "en": "Every 30 minutes",
+            "fr": "Toutes les 30 minutes",
+            "de": "Alle 30 Minuten",
+            "es": "Cada 30 minutos"
+          }
+        },
+        {
+          "value": "60",
+          "label": {
+            "en": "Every hour",
+            "fr": "Toutes les heures",
+            "de": "Jede Stunde",
+            "es": "Cada hora"
+          }
+        }
       ]
     }
   ],
   "actions": [
     {
       "key": "diagnose",
-      "label": { "en": "Search and diagnose", "fr": "Rechercher et diagnostiquer" },
+      "label": {
+        "en": "Search and diagnose",
+        "fr": "Rechercher et diagnostiquer",
+        "de": "Suchen und diagnostizieren",
+        "es": "Buscar y diagnosticar"
+      },
       "timeout_seconds": 30
     },
     {
       "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
+      "label": {
+        "en": "Identify a device",
+        "fr": "Identifier un appareil",
+        "de": "Gerät identifizieren",
+        "es": "Identificar un dispositivo"
+      },
       "timeout_seconds": 30,
       "fields": [
         {
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
+          "label": {
+            "en": "Device",
+            "fr": "Appareil",
+            "de": "Gerät",
+            "es": "Dispositivo"
+          },
           "required": true
         }
       ]
@@ -144,10 +336,17 @@
   "scene_actions": [
     {
       "key": "run_govee_scene",
-      "label": { "en": "Start a Govee scene", "fr": "Lancer une scène Govee" },
+      "label": {
+        "en": "Start a Govee scene",
+        "fr": "Lancer une scène Govee",
+        "de": "Govee-Szene starten",
+        "es": "Iniciar una escena Govee"
+      },
       "description": {
         "en": "Start a built-in Govee light scene (sunset, candlelight, movie...) on a light controlled on the LAN.",
-        "fr": "Lance une scène lumineuse intégrée Govee (coucher de soleil, bougie, cinéma…) sur une lampe pilotée en local."
+        "fr": "Lance une scène lumineuse intégrée Govee (coucher de soleil, bougie, cinéma…) sur une lampe pilotée en local.",
+        "de": "Startet eine integrierte Govee-Lichtszene (Sonnenuntergang, Kerzenlicht, Kino …) auf einer lokal gesteuerten Lampe.",
+        "es": "Inicia una escena de luz integrada de Govee (puesta de sol, luz de vela, cine...) en una luz controlada en la red local."
       },
       "timeout_seconds": 15,
       "fields": [
@@ -155,26 +354,124 @@
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Light", "fr": "Lampe" },
+          "label": {
+            "en": "Light",
+            "fr": "Lampe",
+            "de": "Lampe",
+            "es": "Luz"
+          },
           "required": true
         },
         {
           "key": "scene",
           "type": "select",
-          "label": { "en": "Scene", "fr": "Scène" },
+          "label": {
+            "en": "Scene",
+            "fr": "Scène",
+            "de": "Szene",
+            "es": "Escena"
+          },
           "required": true,
           "options": [
-            { "value": "sunrise", "label": { "en": "Sunrise", "fr": "Lever de soleil" } },
-            { "value": "sunset", "label": { "en": "Sunset", "fr": "Coucher de soleil" } },
-            { "value": "movie", "label": { "en": "Movie", "fr": "Cinéma" } },
-            { "value": "dating", "label": { "en": "Dating", "fr": "Rendez-vous" } },
-            { "value": "romantic", "label": { "en": "Romantic", "fr": "Romantique" } },
-            { "value": "twinkle", "label": { "en": "Twinkle", "fr": "Scintillement" } },
-            { "value": "candlelight", "label": { "en": "Candlelight", "fr": "Bougie" } },
-            { "value": "breathe", "label": { "en": "Breathe", "fr": "Respiration" } },
-            { "value": "snowflake", "label": { "en": "Snowflake", "fr": "Flocon de neige" } },
-            { "value": "energetic", "label": { "en": "Energetic", "fr": "Énergique" } },
-            { "value": "crossing", "label": { "en": "Crossing", "fr": "Croisement" } }
+            {
+              "value": "sunrise",
+              "label": {
+                "en": "Sunrise",
+                "fr": "Lever de soleil",
+                "de": "Sonnenaufgang",
+                "es": "Amanecer"
+              }
+            },
+            {
+              "value": "sunset",
+              "label": {
+                "en": "Sunset",
+                "fr": "Coucher de soleil",
+                "de": "Sonnenuntergang",
+                "es": "Puesta de sol"
+              }
+            },
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movie",
+                "fr": "Cinéma",
+                "de": "Kino",
+                "es": "Cine"
+              }
+            },
+            {
+              "value": "dating",
+              "label": {
+                "en": "Dating",
+                "fr": "Rendez-vous",
+                "de": "Date",
+                "es": "Cita"
+              }
+            },
+            {
+              "value": "romantic",
+              "label": {
+                "en": "Romantic",
+                "fr": "Romantique",
+                "de": "Romantisch",
+                "es": "Romántico"
+              }
+            },
+            {
+              "value": "twinkle",
+              "label": {
+                "en": "Twinkle",
+                "fr": "Scintillement",
+                "de": "Funkeln",
+                "es": "Centelleo"
+              }
+            },
+            {
+              "value": "candlelight",
+              "label": {
+                "en": "Candlelight",
+                "fr": "Bougie",
+                "de": "Kerzenlicht",
+                "es": "Luz de vela"
+              }
+            },
+            {
+              "value": "breathe",
+              "label": {
+                "en": "Breathe",
+                "fr": "Respiration",
+                "de": "Atmen",
+                "es": "Respiración"
+              }
+            },
+            {
+              "value": "snowflake",
+              "label": {
+                "en": "Snowflake",
+                "fr": "Flocon de neige",
+                "de": "Schneeflocke",
+                "es": "Copo de nieve"
+              }
+            },
+            {
+              "value": "energetic",
+              "label": {
+                "en": "Energetic",
+                "fr": "Énergique",
+                "de": "Energisch",
+                "es": "Enérgico"
+              }
+            },
+            {
+              "value": "crossing",
+              "label": {
+                "en": "Crossing",
+                "fr": "Croisement",
+                "de": "Kreuzung",
+                "es": "Cruce"
+              }
+            }
           ]
         }
       ]
@@ -183,10 +480,17 @@
   "widgets": [
     {
       "key": "light_presets",
-      "label": { "en": "Govee light presets", "fr": "Préréglages Govee" },
+      "label": {
+        "en": "Govee light presets",
+        "fr": "Préréglages Govee",
+        "de": "Govee-Voreinstellungen",
+        "es": "Ajustes predefinidos Govee"
+      },
       "description": {
         "en": "One-tap white tones, your favorite color and built-in Govee scenes for one light.",
-        "fr": "Blancs, votre couleur préférée et scènes Govee intégrées en un geste, pour une lampe."
+        "fr": "Blancs, votre couleur préférée et scènes Govee intégrées en un geste, pour une lampe.",
+        "de": "Weißtöne, deine Lieblingsfarbe und integrierte Govee-Szenen mit einem Tipp, für eine Lampe.",
+        "es": "Tonos de blanco, su color favorito y escenas Govee integradas con un toque, para una luz."
       },
       "icon": "sun",
       "action_timeout_seconds": 15,
@@ -195,65 +499,327 @@
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Light", "fr": "Lampe" },
+          "label": {
+            "en": "Light",
+            "fr": "Lampe",
+            "de": "Lampe",
+            "es": "Luz"
+          },
           "required": true
         },
         {
           "key": "color",
           "type": "select",
-          "label": { "en": "Color button", "fr": "Bouton couleur" },
+          "label": {
+            "en": "Color button",
+            "fr": "Bouton couleur",
+            "de": "Farbtaste",
+            "es": "Botón de color"
+          },
           "default": "blue",
           "options": [
-            { "value": "red", "label": { "en": "Red", "fr": "Rouge" } },
-            { "value": "orange", "label": { "en": "Orange", "fr": "Orange" } },
-            { "value": "yellow", "label": { "en": "Yellow", "fr": "Jaune" } },
-            { "value": "green", "label": { "en": "Green", "fr": "Vert" } },
-            { "value": "cyan", "label": { "en": "Cyan", "fr": "Cyan" } },
-            { "value": "blue", "label": { "en": "Blue", "fr": "Bleu" } },
-            { "value": "purple", "label": { "en": "Purple", "fr": "Violet" } },
-            { "value": "pink", "label": { "en": "Pink", "fr": "Rose" } }
+            {
+              "value": "red",
+              "label": {
+                "en": "Red",
+                "fr": "Rouge",
+                "de": "Rot",
+                "es": "Rojo"
+              }
+            },
+            {
+              "value": "orange",
+              "label": {
+                "en": "Orange",
+                "fr": "Orange",
+                "de": "Orange",
+                "es": "Naranja"
+              }
+            },
+            {
+              "value": "yellow",
+              "label": {
+                "en": "Yellow",
+                "fr": "Jaune",
+                "de": "Gelb",
+                "es": "Amarillo"
+              }
+            },
+            {
+              "value": "green",
+              "label": {
+                "en": "Green",
+                "fr": "Vert",
+                "de": "Grün",
+                "es": "Verde"
+              }
+            },
+            {
+              "value": "cyan",
+              "label": {
+                "en": "Cyan",
+                "fr": "Cyan",
+                "de": "Cyan",
+                "es": "Cian"
+              }
+            },
+            {
+              "value": "blue",
+              "label": {
+                "en": "Blue",
+                "fr": "Bleu",
+                "de": "Blau",
+                "es": "Azul"
+              }
+            },
+            {
+              "value": "purple",
+              "label": {
+                "en": "Purple",
+                "fr": "Violet",
+                "de": "Violett",
+                "es": "Morado"
+              }
+            },
+            {
+              "value": "pink",
+              "label": {
+                "en": "Pink",
+                "fr": "Rose",
+                "de": "Rosa",
+                "es": "Rosa"
+              }
+            }
           ]
         },
         {
           "key": "scene",
           "type": "select",
-          "label": { "en": "Scene button", "fr": "Bouton scène" },
+          "label": {
+            "en": "Scene button",
+            "fr": "Bouton scène",
+            "de": "Szenentaste",
+            "es": "Botón de escena"
+          },
           "default": "sunset",
           "options": [
-            { "value": "sunrise", "label": { "en": "Sunrise", "fr": "Lever de soleil" } },
-            { "value": "sunset", "label": { "en": "Sunset", "fr": "Coucher de soleil" } },
-            { "value": "movie", "label": { "en": "Movie", "fr": "Cinéma" } },
-            { "value": "dating", "label": { "en": "Dating", "fr": "Rendez-vous" } },
-            { "value": "romantic", "label": { "en": "Romantic", "fr": "Romantique" } },
-            { "value": "twinkle", "label": { "en": "Twinkle", "fr": "Scintillement" } },
-            { "value": "candlelight", "label": { "en": "Candlelight", "fr": "Bougie" } },
-            { "value": "breathe", "label": { "en": "Breathe", "fr": "Respiration" } },
-            { "value": "snowflake", "label": { "en": "Snowflake", "fr": "Flocon de neige" } },
-            { "value": "energetic", "label": { "en": "Energetic", "fr": "Énergique" } },
-            { "value": "crossing", "label": { "en": "Crossing", "fr": "Croisement" } }
+            {
+              "value": "sunrise",
+              "label": {
+                "en": "Sunrise",
+                "fr": "Lever de soleil",
+                "de": "Sonnenaufgang",
+                "es": "Amanecer"
+              }
+            },
+            {
+              "value": "sunset",
+              "label": {
+                "en": "Sunset",
+                "fr": "Coucher de soleil",
+                "de": "Sonnenuntergang",
+                "es": "Puesta de sol"
+              }
+            },
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movie",
+                "fr": "Cinéma",
+                "de": "Kino",
+                "es": "Cine"
+              }
+            },
+            {
+              "value": "dating",
+              "label": {
+                "en": "Dating",
+                "fr": "Rendez-vous",
+                "de": "Date",
+                "es": "Cita"
+              }
+            },
+            {
+              "value": "romantic",
+              "label": {
+                "en": "Romantic",
+                "fr": "Romantique",
+                "de": "Romantisch",
+                "es": "Romántico"
+              }
+            },
+            {
+              "value": "twinkle",
+              "label": {
+                "en": "Twinkle",
+                "fr": "Scintillement",
+                "de": "Funkeln",
+                "es": "Centelleo"
+              }
+            },
+            {
+              "value": "candlelight",
+              "label": {
+                "en": "Candlelight",
+                "fr": "Bougie",
+                "de": "Kerzenlicht",
+                "es": "Luz de vela"
+              }
+            },
+            {
+              "value": "breathe",
+              "label": {
+                "en": "Breathe",
+                "fr": "Respiration",
+                "de": "Atmen",
+                "es": "Respiración"
+              }
+            },
+            {
+              "value": "snowflake",
+              "label": {
+                "en": "Snowflake",
+                "fr": "Flocon de neige",
+                "de": "Schneeflocke",
+                "es": "Copo de nieve"
+              }
+            },
+            {
+              "value": "energetic",
+              "label": {
+                "en": "Energetic",
+                "fr": "Énergique",
+                "de": "Energisch",
+                "es": "Enérgico"
+              }
+            },
+            {
+              "value": "crossing",
+              "label": {
+                "en": "Crossing",
+                "fr": "Croisement",
+                "de": "Kreuzung",
+                "es": "Cruce"
+              }
+            }
           ]
         },
         {
           "key": "scene_2",
           "type": "select",
-          "label": { "en": "Second scene button", "fr": "Second bouton scène" },
+          "label": {
+            "en": "Second scene button",
+            "fr": "Second bouton scène",
+            "de": "Zweite Szenentaste",
+            "es": "Segundo botón de escena"
+          },
           "description": {
             "en": "Shown when the light has room for it (no white tones).",
-            "fr": "Affiché quand la lampe a la place (sans blancs)."
+            "fr": "Affiché quand la lampe a la place (sans blancs).",
+            "de": "Wird angezeigt, wenn die Lampe Platz dafür hat (ohne Weißtöne).",
+            "es": "Se muestra cuando la luz tiene espacio para él (sin tonos de blanco)."
           },
           "default": "candlelight",
           "options": [
-            { "value": "sunrise", "label": { "en": "Sunrise", "fr": "Lever de soleil" } },
-            { "value": "sunset", "label": { "en": "Sunset", "fr": "Coucher de soleil" } },
-            { "value": "movie", "label": { "en": "Movie", "fr": "Cinéma" } },
-            { "value": "dating", "label": { "en": "Dating", "fr": "Rendez-vous" } },
-            { "value": "romantic", "label": { "en": "Romantic", "fr": "Romantique" } },
-            { "value": "twinkle", "label": { "en": "Twinkle", "fr": "Scintillement" } },
-            { "value": "candlelight", "label": { "en": "Candlelight", "fr": "Bougie" } },
-            { "value": "breathe", "label": { "en": "Breathe", "fr": "Respiration" } },
-            { "value": "snowflake", "label": { "en": "Snowflake", "fr": "Flocon de neige" } },
-            { "value": "energetic", "label": { "en": "Energetic", "fr": "Énergique" } },
-            { "value": "crossing", "label": { "en": "Crossing", "fr": "Croisement" } }
+            {
+              "value": "sunrise",
+              "label": {
+                "en": "Sunrise",
+                "fr": "Lever de soleil",
+                "de": "Sonnenaufgang",
+                "es": "Amanecer"
+              }
+            },
+            {
+              "value": "sunset",
+              "label": {
+                "en": "Sunset",
+                "fr": "Coucher de soleil",
+                "de": "Sonnenuntergang",
+                "es": "Puesta de sol"
+              }
+            },
+            {
+              "value": "movie",
+              "label": {
+                "en": "Movie",
+                "fr": "Cinéma",
+                "de": "Kino",
+                "es": "Cine"
+              }
+            },
+            {
+              "value": "dating",
+              "label": {
+                "en": "Dating",
+                "fr": "Rendez-vous",
+                "de": "Date",
+                "es": "Cita"
+              }
+            },
+            {
+              "value": "romantic",
+              "label": {
+                "en": "Romantic",
+                "fr": "Romantique",
+                "de": "Romantisch",
+                "es": "Romántico"
+              }
+            },
+            {
+              "value": "twinkle",
+              "label": {
+                "en": "Twinkle",
+                "fr": "Scintillement",
+                "de": "Funkeln",
+                "es": "Centelleo"
+              }
+            },
+            {
+              "value": "candlelight",
+              "label": {
+                "en": "Candlelight",
+                "fr": "Bougie",
+                "de": "Kerzenlicht",
+                "es": "Luz de vela"
+              }
+            },
+            {
+              "value": "breathe",
+              "label": {
+                "en": "Breathe",
+                "fr": "Respiration",
+                "de": "Atmen",
+                "es": "Respiración"
+              }
+            },
+            {
+              "value": "snowflake",
+              "label": {
+                "en": "Snowflake",
+                "fr": "Flocon de neige",
+                "de": "Schneeflocke",
+                "es": "Copo de nieve"
+              }
+            },
+            {
+              "value": "energetic",
+              "label": {
+                "en": "Energetic",
+                "fr": "Énergique",
+                "de": "Energisch",
+                "es": "Enérgico"
+              }
+            },
+            {
+              "value": "crossing",
+              "label": {
+                "en": "Crossing",
+                "fr": "Croisement",
+                "de": "Kreuzung",
+                "es": "Cruce"
+              }
+            }
           ]
         }
       ]
