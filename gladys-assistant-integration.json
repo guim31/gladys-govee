@@ -8,8 +8,8 @@
     "de": "Govee-Lampen, LED-Streifen und Leuchten im lokalen Netzwerk (LAN-API), Cloud-API optional.",
     "es": "Bombillas, tiras LED y lámparas Govee en la red local (API LAN), API en la nube opcional."
   },
-  "version": "1.0.2",
-  "docker_image": "ghcr.io/guim31/gladys-govee:1.0.2",
+  "version": "1.1.0",
+  "docker_image": "ghcr.io/guim31/gladys-govee:1.1.0",
   "gladys_version": ">=5.1.0",
   "cover_image": "https://raw.githubusercontent.com/guim31/gladys-govee/main/cover.png",
   "categories": ["lighting"],
