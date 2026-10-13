@@ -66,6 +66,7 @@ export function createFakeCloud({ status = 200 } = {}) {
  * @param {object} [options.config] raw integration config
  * @param {Array} [options.devices] LAN devices (fixture entries + replyPath)
  * @param {boolean} [options.cloud] enable the fake cloud (needs config.api_key)
+ * @param {boolean} [options.timers] run the hub's own polling loops (mock them)
  */
 export async function createWorld({
   config = {},
@@ -74,6 +75,7 @@ export async function createWorld({
   gladysDevices = [],
   network: networkOptions = {},
   connect = true,
+  timers = false,
   dataDir = mkdtempSync(join(tmpdir(), 'gladys-govee-')),
 } = {}) {
   const network = createFakeNetwork({ devices, ...networkOptions });
@@ -92,7 +94,7 @@ export async function createWorld({
     lan,
     store: new Store(dataDir),
     createCloudClient: (options) => new CloudClient({ ...options, fetch: cloud.fetch }),
-    timers: false,
+    timers,
     pauseMs: 1,
   });
   if (connect) {

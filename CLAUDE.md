@@ -47,6 +47,7 @@ gladys-assistant-integration.json manifest: name, config_schema, actions, image.
 docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
 test/                             node --test; helpers/ fake Gladys, simulated LAN, fake cloud
 test/gladys-rules.test.js         conformity with the core table (never loosen it)
+test/polling-logs.test.js         own polling timer, onPoll fallback, quiet logs
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -76,8 +77,10 @@ test/gladys-rules.test.js         conformity with the core table (never loosen i
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** comes in four languages (English, French, German,
+  Spanish): action messages, manifest texts, widget texts (`test/i18n.test.js`
+  checks them). The documentation exists in English and French only
+  (`docs/en.md` / `docs/fr.md`, kept in sync).
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -115,6 +118,13 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
   15000, 30000, 60000). Le template publie `poll_frequency: 300` sans `should_poll` : c'est faux,
   le cœur répond 400 à la découverte. Pour une cadence hors liste, publier `should_poll: false` et
   pousser les états depuis le conteneur, en gardant un `onPoll` de repli.
+- **Gladys 5.2.0 ne sonde jamais un appareil déjà créé sans `should_poll`** (issue
+  GladysAssistant/Gladys#3198, correctif #3199 pas encore publié) : le cœur ne met pas à jour
+  `should_poll`/`poll_frequency` d'un appareil existant. Ici, aucune dépendance à `onPoll` : les
+  appareils sont publiés en `should_poll: false` et `GoveeHub.schedule()` sonde tout le réseau
+  local (et le cloud) sur ses propres minuteurs. `onPoll` reste un repli (`hub.pollFallback`) qui
+  ne réinterroge pas une lampe sondée depuis moins d'un intervalle. `test/polling-logs.test.js`
+  le vérifie : ne pas retirer ces minuteurs en croyant que Gladys sonde.
 - **`min` et `max` sont NOT NULL** dans `t_device_feature`, y compris pour `text/text` : sans eux,
   « Ajouter à Gladys » échoue en HTTP 422. Mettre 0/0, comme Zigbee2MQTT.
 - Un état publié sur une fonctionnalité **pas encore ajoutée** dans Gladys reçoit un 200 puis est
@@ -138,6 +148,15 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
 - Une intégration `device` ne reçoit pas la langue de l'utilisateur, une action de scène non
   plus (un widget, si) : prévoir un champ de config `language` si des textes partent du
   conteneur. Le superviseur injecte `TZ`, le fuseau de Gladys. La sandbox est limitée à 256 Mo.
+
+**Logs**
+
+- Niveau `info` réservé au cycle de vie (démarrage, lampe trouvée, lampe qui cesse ou recommence
+  de répondre, passage par la capture du cœur). Une erreur répétée par une boucle passe par
+  `hub.failed(clé, message)` / `hub.recovered(clé, message)` : une ligne au premier échec, une au
+  rétablissement, les répétitions en `debug` (même principe dans `LanClient` pour la capture et
+  dans `Store` pour l'écriture). Un test vérifie qu'un cycle normal n'écrit rien et que la clé
+  d'API n'apparaît jamais. `LOG_LEVEL=debug` dans l'environnement du conteneur montre le reste.
 
 **Formulaires de configuration et actions**
 
@@ -198,11 +217,13 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
 - `publishTransports` ignore en silence les appareils pas encore créés : republier le badge dans
   `onDeviceCreated`, comme les états.
 
-**SDK 0.14.0 publié sur npm (et non `master`)**
+**SDK (0.15.0 depuis octobre 2026)**
 
-- Ni `publishChangedStates`, ni `@gladysassistant/integration-sdk/testing` (`createFakeGladys`),
-  ni `DEVICE_POLL_FREQUENCIES` : le README de `master` les documente, le paquet publié ne les a
-  pas. Dédoublonner les états soi-même, garder un double de test maison.
+- 0.15 apporte `publishChangedStates`, `@gladysassistant/integration-sdk/testing`
+  (`createFakeGladys`) et `DEVICE_POLL_FREQUENCIES`. Volontairement non adoptés ici : le hub
+  dédoublonne déjà ses états (`publishValues`, tests à l'appui) et le double de test maison
+  (`test/helpers/fakeGladys.js`) contrôle aussi la table du cœur ; les remplacer serait une
+  réécriture sans gain pour l'utilisateur.
 - `validateWidgetContent` **ignore les `fields`** d'une action de widget : il ne signale pas
   qu'aucune version publiée du cœur ne les gère (voir plus haut).
 - `light/temperature` avec l'unité `kelvin` et des bornes en kelvins : le front l'affiche comme

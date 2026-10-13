@@ -17,6 +17,7 @@ export class Store {
     this.directory = directory;
     this.path = join(directory, FILE_NAME);
     this.pending = null;
+    this.writeFailed = false;
   }
 
   async load() {
@@ -45,8 +46,16 @@ export class Store {
           const temporary = `${this.path}.tmp`;
           await writeFile(temporary, JSON.stringify(snapshot));
           await rename(temporary, this.path);
+          if (this.writeFailed) {
+            this.writeFailed = false;
+            logger.info(`${this.path} written again`);
+          }
         } catch (err) {
-          logger.warn(`Cannot write ${this.path}: ${err.message}`);
+          // Saved every minute or so: one warning until a write succeeds.
+          (this.writeFailed ? logger.debug : logger.warn)(
+            `Cannot write ${this.path}: ${err.message}`,
+          );
+          this.writeFailed = true;
         }
       });
       this.writing = this.pending;
