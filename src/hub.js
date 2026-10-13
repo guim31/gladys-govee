@@ -109,6 +109,8 @@ export class GoveeHub {
     this.cloudUsage = undefined;
     this.config = null;
     this.busy = { discovery: null, lanPoll: null, cloudPoll: null };
+    // Failures logged once: key -> message, cleared (and logged) on recovery.
+    this.failures = new Map();
   }
 
   // --- Lifecycle -------------------------------------------------------------
@@ -182,18 +184,25 @@ export class GoveeHub {
     for (const timer of this.timers) {
       clearInterval(timer);
     }
-    const background = (fn) => () => fn().catch((err) => this.logger.error(err.message));
+    // The loops run whether or not Gladys ever calls onPoll: the devices are
+    // published with should_poll: false, and Gladys 5.2.0 never polls a device
+    // created without should_poll anyway (GladysAssistant/Gladys#3198).
+    const background = (name, fn) => () =>
+      fn().then(
+        () => this.recovered(name, `The ${name} works again`),
+        (err) => this.failed(name, `The ${name} failed: ${err.message}`, 'error'),
+      );
     this.timers = [
       setInterval(
-        background(() => this.pollLan()),
+        background('LAN poll', () => this.pollLan()),
         this.config.lanPollSeconds * 1000,
       ),
       setInterval(
-        background(() => this.discover()),
+        background('discovery', () => this.discover()),
         DISCOVERY_INTERVAL_MS,
       ),
       setInterval(
-        background(() => this.pollCloud()),
+        background('cloud poll', () => this.pollCloud()),
         CLOUD_TICK_MS,
       ),
     ];
@@ -369,6 +378,7 @@ export class GoveeHub {
       const devices = await this.cloud.listDevices();
       this.lastCloudList = this.now();
       this.cloudError = null;
+      this.recovered('cloud list', 'Cloud device list available again');
       for (const device of devices) {
         this.upsert({
           id: device?.device,
@@ -383,7 +393,8 @@ export class GoveeHub {
       }
     } catch (err) {
       this.cloudError = err;
-      this.logger.warn(`Cloud device list failed: ${err.message}`);
+      // Retried every minute until it works: logged once, not every minute.
+      this.failed('cloud list', `Cloud device list failed: ${err.message}`);
     }
   }
 
@@ -447,6 +458,7 @@ export class GoveeHub {
       );
       let changed = false;
       for (const entry of entries) {
+        entry.lastLanPoll = this.now();
         const data = replies.get(entry.ip);
         const wasReachable = this.lanReachable(entry);
         if (!data) {
@@ -512,6 +524,7 @@ export class GoveeHub {
             entry.cloudOnline = online;
           }
           changed = (await this.publishValues(entry, values)) || changed;
+          this.recovered(`cloud state ${entry.id}`, `Cloud state of ${entry.sku} available again`);
         } catch (err) {
           if (err.code === 'BUDGET') {
             // Once a day in the logs, not once a minute until midnight UTC.
@@ -522,7 +535,10 @@ export class GoveeHub {
             }
             break;
           }
-          this.logger.warn(`Cloud state of ${entry.sku} failed: ${err.message}`);
+          this.failed(
+            `cloud state ${entry.id}`,
+            `Cloud state of ${entry.sku} failed: ${err.message}`,
+          );
         }
       }
       await this.publishTransports();
@@ -600,7 +616,7 @@ export class GoveeHub {
       entry.id,
       setTimeout(() => {
         this.refreshTimers.delete(entry.id);
-        this.pollLan([entry]).catch((err) => this.logger.warn(`Refresh failed: ${err.message}`));
+        this.pollLan([entry]).catch((err) => this.logger.debug(`Refresh failed: ${err.message}`));
       }, delay),
     );
   }
@@ -751,6 +767,41 @@ export class GoveeHub {
   }
 
   // --- Helpers ---------------------------------------------------------------
+
+  /**
+   * The Gladys fallback poll (onPoll). The hub's own loop already polls every
+   * LAN light: answer only when it has not done so within the interval, so a
+   * Gladys that polls as well does not double the traffic.
+   */
+  async pollFallback(externalId) {
+    const entry = this.entryByExternalId(externalId);
+    if (!entry || !hasLan(entry) || !entry.ip) {
+      return false;
+    }
+    const intervalMs = this.config.lanPollSeconds * 1000;
+    if (entry.lastLanPoll !== undefined && this.now() - entry.lastLanPoll < intervalMs) {
+      return false;
+    }
+    await this.pollLan([entry]);
+    return true;
+  }
+
+  // A failure repeated by a loop is logged once (and again only if the
+  // message changes), then on recovery; the repeats go to debug.
+  failed(key, message, level = 'warn') {
+    if (this.failures.get(key) === message) {
+      this.logger.debug(message);
+      return;
+    }
+    this.failures.set(key, message);
+    this.logger[level](message);
+  }
+
+  recovered(key, message) {
+    if (this.failures.delete(key)) {
+      this.logger.info(message);
+    }
+  }
 
   // Runs `fn` unless the same job is already running, in which case the
   // caller shares its result (no overlapping scans or polls).

@@ -73,6 +73,7 @@ export class LanClient {
     this.preferMediated = false;
     this.captureChain = Promise.resolve();
     this.stats = { direct: 0, mediated: 0 };
+    this.captureFailure = null;
   }
 
   /** Open the UDP socket. Never throws: a failed bind leaves the mediated path. */
@@ -233,6 +234,10 @@ export class LanClient {
         return;
       }
       this.mediation = 'available';
+      if (this.captureFailure) {
+        this.captureFailure = null;
+        this.logger.info('The network capture by the Gladys core works again.');
+      }
       for (const result of Array.isArray(results) ? results : []) {
         if (typeof result?.source_ip !== 'string' || typeof result.payload_base64 !== 'string') {
           continue;
@@ -260,7 +265,14 @@ export class LanClient {
       this.preferMediated = false;
       return;
     }
-    this.logger.warn(`Network capture failed: ${error?.message ?? error}`);
+    // Retried at every poll: logged once (and when the reason changes).
+    const message = `Network capture failed: ${error?.message ?? error}`;
+    if (this.captureFailure === message) {
+      this.logger.debug(message);
+      return;
+    }
+    this.captureFailure = message;
+    this.logger.warn(message);
   }
 
   /** What the diagnostics action reports. */

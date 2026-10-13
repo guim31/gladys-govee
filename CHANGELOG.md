@@ -10,6 +10,17 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Changed
+
+- Quieter logs: a failure that repeats (Govee cloud unreachable, network
+  capture refused by Gladys, storage not writable...) is written once, then
+  once more when it works again, instead of at every poll.
+- The lights keep being refreshed by the integration itself, at the interval
+  chosen in its settings, whatever Gladys does with device polling; if Gladys
+  asks for a refresh as well, a light refreshed a moment ago is not asked
+  twice.
+- Updated to the Gladys integration SDK 0.15.
+
 ## [1.1.0] - 2026-10-11
 
 ### Added

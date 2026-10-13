@@ -95,14 +95,12 @@ export function registerHandlers(gladys, options = {}) {
 
   gladys.onSetValue(whenReady((device, feature, value) => hub.setValue(device, feature, value)));
 
-  // The devices are published with should_poll: false (the hub polls them all
-  // in one exchange); this only serves a Gladys that would poll anyway.
+  // The devices are published with should_poll: false and the hub polls them
+  // all on its own timer (src/hub.js, schedule). This fallback only serves a
+  // Gladys that would poll anyway, and skips a light the hub just polled.
   gladys.onPoll(
     whenReady(async (device) => {
-      const entry = hub.entryByExternalId(device?.external_id);
-      if (entry?.ip) {
-        await hub.pollLan([entry]);
-      }
+      await hub.pollFallback(device?.external_id);
     }),
   );
 
