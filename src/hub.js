@@ -761,6 +761,7 @@ export class GoveeHub {
       throw new Error(`The ${entry.sku} has no known built-in scenes`);
     }
     const message = sceneMessage(scene);
+    entry.lastLanCommand = this.now();
     if ((this.values.get(entry.id) ?? {})[FEATURE_KEYS.POWER] !== 1) {
       await this.lan.send(entry.ip, turnMessage(true));
       await this.publishValues(entry, { [FEATURE_KEYS.POWER]: 1 });
