@@ -85,8 +85,10 @@ A1B2` (model and end of the device id): rename them in Gladys as you like.
   [The cloud API](#the-cloud-api-optional).
 - **Prefer the local connection**: when a light is reachable both locally and
   through the cloud, use the local network (on by default). If a light stops
-  answering locally, Gladys drives it through the cloud and the badge turns
-  orange to tell you.
+  answering locally for 3 minutes, Gladys drives it through the cloud and the
+  badge turns orange to tell you. A shorter silence, common on Wi-Fi, changes
+  nothing. A light that has the local API keeps taking its state from the
+  local network: the cloud only says whether it is online.
 
 Save, then open the **Discovery** tab: your Govee devices are listed there,
 add them to Gladys. Click **Scan** to search again at any time.

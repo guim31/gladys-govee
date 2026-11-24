@@ -50,6 +50,7 @@ export function registerHandlers(gladys, options = {}) {
     createCloudClient: options.createCloudClient,
     timers: options.timers ?? true,
     pauseMs: options.pauseMs,
+    now: options.now,
   });
 
   // Resolved once the hub has started; every handler waits for it, so a

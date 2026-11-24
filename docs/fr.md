@@ -91,8 +91,10 @@ Dans l'onglet **Configuration** de l'intégration :
   [L'API cloud](#lapi-cloud-facultative).
 - **Préférer la connexion locale** : quand une lampe est joignable à la fois en
   local et par le cloud, passer par le réseau local (activé par défaut). Si une
-  lampe ne répond plus en local, Gladys la pilote par le cloud et le badge
-  passe à l'orange pour vous le signaler.
+  lampe ne répond plus en local pendant 3 minutes, Gladys la pilote par le
+  cloud et le badge passe à l'orange pour vous le signaler. Un silence plus
+  court, fréquent en Wi-Fi, ne change rien. Une lampe qui a l'API locale garde
+  l'état lu sur le réseau local : le cloud dit seulement si elle est en ligne.
 
 Enregistrez, puis ouvrez l'onglet **Découverte** : vos appareils Govee y sont
 listés, ajoutez-les à Gladys. Le bouton **Scanner** relance une recherche à

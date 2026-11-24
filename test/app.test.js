@@ -213,12 +213,19 @@ test('cloud commands: power, brightness 0, toggles of a LAN light', async () => 
 
 test('a light silent on the LAN falls back to the cloud, flagged degraded', async () => {
   const devices = LAN_FIXTURES.map((d) => ({ ...d }));
-  const { gladys, hub, network, cloud, app } = await createWorld({ config: cloudConfig, devices });
+  const clock = { now: Date.parse('2026-11-24T12:00:00Z') };
+  const { gladys, hub, network, cloud, app } = await createWorld({
+    config: cloudConfig,
+    devices,
+    now: () => clock.now,
+  });
   try {
     const lampId = deviceId(gladys, FLOOR_LAMP.scan.device);
     assert.equal(gladys.fake.lastTransport(lampId).transport, 'local');
     fakeDevice(network, FLOOR_LAMP).replyPath = 'none';
-    for (let i = 0; i < 3; i += 1) {
+    // Silent for 3 minutes: polls every 30 s.
+    for (let i = 0; i < 6; i += 1) {
+      clock.now += 30_000;
       await hub.pollLan();
     }
     const badge = gladys.fake.lastTransport(lampId);
@@ -236,6 +243,108 @@ test('a light silent on the LAN falls back to the cloud, flagged degraded', asyn
       external_id: lampId,
       transport: 'local',
     });
+  } finally {
+    app.stop();
+  }
+});
+
+test('a short LAN silence keeps the light local, without a log line', async (t) => {
+  const devices = LAN_FIXTURES.map((d) => ({ ...d }));
+  const clock = { now: Date.parse('2026-11-24T12:00:00Z') };
+  const { gladys, hub, network, cloud, app } = await createWorld({
+    config: cloudConfig,
+    devices,
+    now: () => clock.now,
+  });
+  const logs = [];
+  t.mock.method(hub.logger, 'info', (message) => logs.push(message));
+  try {
+    const lampId = deviceId(gladys, FLOOR_LAMP.scan.device);
+    const badges = gladys.transports.length;
+    fakeDevice(network, FLOOR_LAMP).replyPath = 'none';
+    // 90 s without an answer (3 missed polls): the old threshold.
+    for (let i = 0; i < 3; i += 1) {
+      clock.now += 30_000;
+      await hub.pollLan();
+    }
+    assert.equal(gladys.fake.lastTransport(lampId).transport, 'local');
+    assert.equal(gladys.transports.length, badges, 'no badge published');
+    const before = cloud.calls.length;
+    await setValue(gladys, FLOOR_LAMP.scan.device, 'power', 1);
+    assert.equal(cloud.calls.length, before, 'still driven on the LAN');
+    assert.equal(fakeDevice(network, FLOOR_LAMP).status.onOff, 1);
+    fakeDevice(network, FLOOR_LAMP).replyPath = 'direct';
+    clock.now += 30_000;
+    await hub.pollLan();
+    assert.deepEqual(
+      logs.filter((line) => /answer/.test(line)),
+      [],
+      'neither "stopped answering" nor "answers"',
+    );
+  } finally {
+    app.stop();
+  }
+});
+
+test('in cloud fallback, a stale cloud state does not turn a LAN light off', async () => {
+  const devices = LAN_FIXTURES.map((d) => ({ ...d }));
+  const clock = { now: Date.parse('2026-11-24T12:00:00Z') };
+  const { gladys, hub, network, cloud, app } = await createWorld({
+    config: cloudConfig,
+    devices,
+    now: () => clock.now,
+  });
+  try {
+    const power = feature(gladys, FLOOR_LAMP.scan.device, 'power');
+    await setValue(gladys, FLOOR_LAMP.scan.device, 'power', 1);
+    assert.equal(gladys.fake.lastState(power), 1);
+    // The cloud still remembers the light off; the LAN goes silent long enough.
+    cloud.states.H6076.payload.capabilities.find((c) => c.instance === 'powerSwitch').state.value =
+      0;
+    fakeDevice(network, FLOOR_LAMP).replyPath = 'none';
+    for (let i = 0; i < 7; i += 1) {
+      clock.now += 60_000;
+      await hub.pollLan();
+      await hub.pollCloud();
+    }
+    assert.equal(
+      gladys.fake.lastTransport(deviceId(gladys, FLOOR_LAMP.scan.device)).degraded,
+      true,
+    );
+    assert.ok(
+      cloud.calls.some((c) => c.path === '/device/state'),
+      'the cloud was polled',
+    );
+    assert.equal(gladys.fake.lastState(power), 1);
+  } finally {
+    app.stop();
+  }
+});
+
+test('a failed cloud command is still sent on the LAN (scenes report no error)', async () => {
+  const devices = LAN_FIXTURES.map((d) => ({ ...d }));
+  const clock = { now: Date.parse('2026-11-24T12:00:00Z') };
+  const { gladys, hub, network, cloud, app } = await createWorld({
+    config: cloudConfig,
+    devices,
+    now: () => clock.now,
+  });
+  try {
+    fakeDevice(network, FLOOR_LAMP).replyPath = 'none';
+    for (let i = 0; i < 7; i += 1) {
+      clock.now += 30_000;
+      await hub.pollLan();
+    }
+    assert.equal(
+      gladys.fake.lastTransport(deviceId(gladys, FLOOR_LAMP.scan.device)).transport,
+      'cloud',
+    );
+    cloud.failControl = true;
+    await setValue(gladys, FLOOR_LAMP.scan.device, 'power', 1);
+    assert.equal(cloud.calls.at(-1).path, '/device/control');
+    assert.equal(fakeDevice(network, FLOOR_LAMP).status.onOff, 1, 'the datagram went out');
+    // A cloud-only feature has no LAN path: the error still reaches Gladys.
+    await assert.rejects(setValue(gladys, FLOOR_LAMP.scan.device, 'toggle-gradient', 1));
   } finally {
     app.stop();
   }
