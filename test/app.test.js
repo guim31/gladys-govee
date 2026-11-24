@@ -211,7 +211,7 @@ test('cloud commands: power, brightness 0, toggles of a LAN light', async () => 
   }
 });
 
-test('a light silent on the LAN falls back to the cloud, flagged degraded', async () => {
+test('a light silent on the LAN falls back to the cloud, flagged degraded', async (t) => {
   const devices = LAN_FIXTURES.map((d) => ({ ...d }));
   const clock = { now: Date.parse('2026-11-24T12:00:00Z') };
   const { gladys, hub, network, cloud, app } = await createWorld({
@@ -222,12 +222,18 @@ test('a light silent on the LAN falls back to the cloud, flagged degraded', asyn
   try {
     const lampId = deviceId(gladys, FLOOR_LAMP.scan.device);
     assert.equal(gladys.fake.lastTransport(lampId).transport, 'local');
+    const logs = [];
+    t.mock.method(hub.logger, 'info', (message) => logs.push(message));
     fakeDevice(network, FLOOR_LAMP).replyPath = 'none';
     // Silent for 3 minutes: polls every 30 s.
     for (let i = 0; i < 6; i += 1) {
       clock.now += 30_000;
       await hub.pollLan();
     }
+    assert.deepEqual(
+      logs.filter((line) => /answering/.test(line)),
+      [`H6076 at ${FLOOR_LAMP.ip} stopped answering on the LAN, using the cloud`],
+    );
     const badge = gladys.fake.lastTransport(lampId);
     assert.equal(badge.transport, 'cloud');
     assert.equal(badge.degraded, true);
@@ -316,6 +322,14 @@ test('in cloud fallback, a stale cloud state does not turn a LAN light off', asy
       'the cloud was polled',
     );
     assert.equal(gladys.fake.lastState(power), 1);
+    // Long silent: the cloud is the only source left, its state is trusted
+    // (at its next read, 10 minutes after the previous one).
+    for (let i = 0; i < 8; i += 1) {
+      clock.now += 60_000;
+      await hub.pollLan();
+      await hub.pollCloud();
+    }
+    assert.equal(gladys.fake.lastState(power), 0);
   } finally {
     app.stop();
   }

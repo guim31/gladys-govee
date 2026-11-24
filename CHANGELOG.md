@@ -13,11 +13,11 @@ the notes of the version's GitHub Release.
 ### Fixed
 
 - A light is declared silent on the local network after 3 minutes without an
-  answer, no longer after 3 missed polls: the short Wi-Fi silences no longer
+  answer (three polls at the longer intervals), no longer after 3 missed polls: the short Wi-Fi silences no longer
   flip the badge, move the commands to the cloud or fill the logs.
 - A light just turned on from Gladys no longer shows as off a few minutes
-  later: for a light with the local API, the state stays the one read on the
-  local network, never an older state the cloud still holds.
+  later: for a light with the local API, the older state the cloud still holds
+  is ignored for 10 minutes after the last local command or answer.
 - A command the cloud refuses or times out on is still sent on the local
   network, so a scene no longer fails in silence.
 

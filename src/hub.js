@@ -53,6 +53,9 @@ export const PRESETS_WIDGET = 'light_presets';
 // every flip changed the badge and moved the commands to the cloud.
 export const LAN_SILENCE_BEFORE_UNREACHABLE_MS = 3 * 60 * 1000;
 const LAN_MISSES_BEFORE_UNREACHABLE = 3;
+// The cloud state of a LAN light lags behind the LAN: it is ignored for this
+// long after the last LAN command or answer.
+export const CLOUD_STATE_HOLD_MS = 10 * 60 * 1000;
 const DISCOVERY_INTERVAL_MS = 10 * 60 * 1000;
 const CLOUD_LIST_INTERVAL_MS = 6 * 60 * 60 * 1000;
 const CLOUD_TICK_MS = 60 * 1000;
@@ -470,7 +473,9 @@ export class GoveeHub {
       for (const entry of entries) {
         entry.lastLanPoll = this.now();
         const data = replies.get(entry.ip);
-        const wasReachable = this.lanReachable(entry);
+        // The state last reported, not recomputed: reachability depends on
+        // the clock and may have expired between two polls.
+        const wasReachable = entry.lanReachableShown ?? this.lanReachable(entry);
         if (!data) {
           entry.lanMisses += 1;
         } else {
@@ -481,7 +486,8 @@ export class GoveeHub {
           const values = lanStatusToValues(entry, status, this.config.language);
           changed = (await this.publishValues(entry, values)) || changed;
         }
-        if (wasReachable !== this.lanReachable(entry)) {
+        entry.lanReachableShown = this.lanReachable(entry);
+        if (wasReachable !== entry.lanReachableShown) {
           changed = true;
           const fallback = this.route(entry).use === 'cloud' ? ', using the cloud' : '';
           this.logger.info(
@@ -533,11 +539,11 @@ export class GoveeHub {
             changed = changed || entry.cloudOnline !== online;
             entry.cloudOnline = online;
           }
-          // A light that speaks LAN takes its states from the LAN (and from
-          // the commands sent to it): the cloud often still reports a state
-          // older than the last LAN command, and publishing it showed a light
-          // just turned on as off a few minutes later.
-          if (!hasLan(entry)) {
+          // The cloud often still reports a state older than the last LAN
+          // command: publishing it showed a light just turned on as off a few
+          // minutes later. Trusted again once the LAN has been quiet long.
+          const lastLan = Math.max(entry.lastLanReply ?? 0, entry.lastLanCommand ?? 0);
+          if (!hasLan(entry) || this.now() - lastLan >= CLOUD_STATE_HOLD_MS) {
             changed = (await this.publishValues(entry, values)) || changed;
           }
           this.recovered(`cloud state ${entry.id}`, `Cloud state of ${entry.sku} available again`);
@@ -658,6 +664,7 @@ export class GoveeHub {
     } else if (spec.cloud && this.cloud && hasCloud(entry)) {
       try {
         values = await this.cloudCommand(entry, spec, Number(value));
+        this.recovered(`cloud command ${entry.id}`, `Cloud commands to ${entry.sku} work again`);
       } catch (err) {
         if (!spec.lan || !entry.ip) {
           throw err;
@@ -665,7 +672,10 @@ export class GoveeHub {
         // The cloud refused or timed out, the light may still hear the LAN:
         // a datagram costs nothing. A scene reports no error to anyone, so
         // without this the command was lost in silence.
-        this.logger.warn(`Cloud command to ${entry.sku} failed (${err.message}): sent on the LAN`);
+        this.failed(
+          `cloud command ${entry.id}`,
+          `Cloud command to ${entry.sku} failed (${err.message}): sent on the LAN`,
+        );
         values = await this.lanCommand(entry, spec, Number(value));
         this.scheduleRefresh(entry);
       }
@@ -688,6 +698,7 @@ export class GoveeHub {
   }
 
   async lanCommand(entry, spec, value) {
+    entry.lastLanCommand = this.now();
     const state = this.values.get(entry.id) ?? {};
     const turnOnFirst = async () => {
       if (state[FEATURE_KEYS.POWER] !== 1) {

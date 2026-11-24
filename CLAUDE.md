@@ -149,7 +149,7 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
   qui a envoyé la commande (action avec `user_id`) et y remet `last_value` ; une commande venue
   d'une **scène** échoue sans aucun message (ligne `warn` dans les logs du cœur). Le cœur ne
   filtre pas les commandes selon le badge de transport : `unreachable` reçoit tout. Ici, une
-  commande cloud refusée repart donc en LAN, et une lampe LAN ne prend jamais son état du cloud
+  commande cloud refusée repart donc en LAN, et une lampe LAN ignore l'état du cloud 10 min après la dernière nouvelle LAN
   (souvent en retard sur la dernière commande LAN : la lampe paraissait s'éteindre seule).
 - Une intégration `device` ne reçoit pas la langue de l'utilisateur, une action de scène non
   plus (un widget, si) : prévoir un champ de config `language` si des textes partent du
