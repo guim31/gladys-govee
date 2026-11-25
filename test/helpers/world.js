@@ -48,6 +48,9 @@ export function createFakeCloud({ status = 200 } = {}) {
       return state ? reply(200, state) : reply(400, { code: 400, msg: 'device not found' });
     }
     if (path === '/device/control') {
+      if (api.failControl) {
+        return reply(503, { code: 503, message: 'Service Unavailable' });
+      }
       const { capability } = body.payload;
       return reply(200, {
         requestId: body.requestId,
@@ -58,7 +61,8 @@ export function createFakeCloud({ status = 200 } = {}) {
     }
     return reply(404, { code: 404, message: 'not found' });
   };
-  return { fetch, calls };
+  const api = { fetch, calls, states, failControl: false };
+  return api;
 }
 
 /**
@@ -76,6 +80,7 @@ export async function createWorld({
   network: networkOptions = {},
   connect = true,
   timers = false,
+  now,
   dataDir = mkdtempSync(join(tmpdir(), 'gladys-govee-')),
 } = {}) {
   const network = createFakeNetwork({ devices, ...networkOptions });
@@ -96,6 +101,7 @@ export async function createWorld({
     createCloudClient: (options) => new CloudClient({ ...options, fetch: cloud.fetch }),
     timers,
     pauseMs: 1,
+    now,
   });
   if (connect) {
     await gladys.fake.connect();
